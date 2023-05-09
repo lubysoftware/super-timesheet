@@ -1,6 +1,13 @@
+import { ToastContainer } from 'react-toastify';
+
 import { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
+
+import StyleWrapper from '@/components/style-wrapper';
+import { Analytics } from '@vercel/analytics/react';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 const App: NextPage<AppProps> = ({ Component, pageProps }) => (
   <>
@@ -11,7 +18,11 @@ const App: NextPage<AppProps> = ({ Component, pageProps }) => (
       <meta name="description" content="Super Timesheet" />
       <link rel="icon" href="/fav.png" />
     </Head>
-    <Component {...pageProps} />
+    <StyleWrapper>
+      <Component {...pageProps} />
+      <ToastContainer />
+    </StyleWrapper>
+    <Analytics />
   </>
 );
 
