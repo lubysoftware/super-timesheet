@@ -5,12 +5,16 @@ import { Fade, Typography } from '@mui/material';
 import Styles from '@/components/loading/styles';
 
 interface LoadingProps {
-  texts: string[];
+  texts?: string[];
   timeout?: number;
   transition?: number;
 }
 
-const WithText: FC<LoadingProps> = ({ texts, transition, timeout }) => {
+const WithText: FC<LoadingProps & { texts: string[] }> = ({
+  texts,
+  transition,
+  timeout,
+}) => {
   const [fade, setFade] = useState(true);
   const [current, setCurrent] = useState(0);
 

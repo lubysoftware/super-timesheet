@@ -4,6 +4,7 @@ import { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 
+import Layout from '@/components/layout';
 import StyleWrapper from '@/components/style-wrapper';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -19,8 +20,10 @@ const App: NextPage<AppProps> = ({ Component, pageProps }) => (
       <link rel="icon" href="/fav.png" />
     </Head>
     <StyleWrapper>
-      <Component {...pageProps} />
-      <ToastContainer />
+      <Layout>
+        <Component {...pageProps} />
+        <ToastContainer />
+      </Layout>
     </StyleWrapper>
     <Analytics />
   </>
