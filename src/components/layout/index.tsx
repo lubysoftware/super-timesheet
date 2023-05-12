@@ -17,6 +17,7 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
     supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setUser({
+          id: session.user.id,
           avatar: session.user.user_metadata.avatar_url,
           name: session.user.user_metadata.name,
           email: session.user.user_metadata.email,
