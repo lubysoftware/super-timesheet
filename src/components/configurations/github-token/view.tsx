@@ -31,8 +31,10 @@ export const SetGithubTokenView: FC<{ user: User }> = ({ user }) => {
     try {
       const data = await githubInfos.set(user, { token });
 
-      if (data) {
+      if (data && data.length > 0) {
         toast.success('O token foi atualizado com sucesso!');
+      } else {
+        toast.warn('Algo de errado aconteceu ao atualizar o token');
       }
     } catch (e) {
       toast.error(`Falha ao atualizar token: ${e}`);
