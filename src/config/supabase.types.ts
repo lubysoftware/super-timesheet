@@ -26,6 +26,29 @@ export interface Database {
           user?: string;
         };
       };
+      TimesheetInfos: {
+        Row: {
+          content: string;
+          id: number;
+          iv: string;
+          login: string;
+          user: string;
+        };
+        Insert: {
+          content: string;
+          id?: number;
+          iv: string;
+          login: string;
+          user: string;
+        };
+        Update: {
+          content?: string;
+          id?: number;
+          iv?: string;
+          login?: string;
+          user?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
