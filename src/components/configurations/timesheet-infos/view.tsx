@@ -25,8 +25,6 @@ export const SetTimesheetInfosView: FC<{ user: User }> = ({ user }) => {
 
       if (response && response.length > 0) {
         toast.success('Autenticação salva com sucesso!');
-      } else {
-        toast.warn('Algo de errado aconteceu ao salvar a autenticação');
       }
     } catch (e) {
       toast.error(`Erro ao salvar o autenticação: ${e}`);
@@ -59,51 +57,61 @@ export const SetTimesheetInfosView: FC<{ user: User }> = ({ user }) => {
         </Typography>
       </Grid>
       <Grid item xs={9} container spacing={1}>
-        <FormProvider {...form}>
-          <Grid
-            container
-            item
-            xs={12}
-            spacing={1}
-            component="form"
-            onSubmit={form.handleSubmit(handleSave)}
-          >
+        {loading > 0 ? (
+          <Grid container item xs={12} spacing={1}>
             <Grid item xs={7}>
-              {loading > 0 ? (
-                <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
-              ) : (
+              <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
+            </Grid>
+            <Grid item xs={4}>
+              <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
+            </Grid>
+            <Grid item xs={1}>
+              <Skeleton width={42} height={40} sx={{ transform: 'none' }} />
+            </Grid>
+          </Grid>
+        ) : (
+          <FormProvider {...form}>
+            <Grid
+              container
+              item
+              xs={12}
+              spacing={1}
+              component="form"
+              onSubmit={form.handleSubmit(handleSave)}
+            >
+              <Grid item xs={7}>
                 <Form.Input
                   label="E-mail"
                   type="email"
                   name="login"
                   size="small"
                 />
-              )}
+              </Grid>
+              <Grid item xs={4}>
+                <Form.Input
+                  label="Senha"
+                  type="password"
+                  name="password"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <IconButton
+                  style={{
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: 4,
+                    paddingTop: 7,
+                    paddingBottom: 7,
+                  }}
+                  aria-label="Salvar"
+                  type="submit"
+                >
+                  <SyncIcon color="disabled" />
+                </IconButton>
+              </Grid>
             </Grid>
-            <Grid item xs={4}>
-              <Form.Input
-                label="Senha"
-                type="password"
-                name="password"
-                size="small"
-              />
-            </Grid>
-            <Grid item xs={1}>
-              <IconButton
-                style={{
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: 4,
-                  paddingTop: 7,
-                  paddingBottom: 7,
-                }}
-                aria-label="Salvar"
-                type="submit"
-              >
-                <SyncIcon color="disabled" />
-              </IconButton>
-            </Grid>
-          </Grid>
-        </FormProvider>
+          </FormProvider>
+        )}
       </Grid>
     </Grid>
   );

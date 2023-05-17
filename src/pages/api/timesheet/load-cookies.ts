@@ -1,17 +1,19 @@
 import { timesheet } from '@/services/timesheet/service';
-import { Timesheet } from '@/services/timesheet/types';
+import { TimesheetInfos } from '@/services/timesheet/timesheet-infos/types';
 import { ApiRoute } from '@/utils/routes';
 
-const handler: ApiRoute<Timesheet.CryptoHash, { text: string }> = async (
-  req,
-  res
-) => {
+import { Cookie } from 'tough-cookie';
+
+const handler: ApiRoute<Cookie[], TimesheetInfos.Input> = async (req, res) => {
   switch (req.method) {
     case 'POST':
       try {
-        const encrypted = await timesheet.encryptPassword(req.body.text);
+        const cookies = await timesheet.loadCookies(
+          req.body.login,
+          req.body.password
+        );
 
-        res.status(200).json(encrypted);
+        res.status(200).json(cookies);
       } catch (e) {
         res.status(500).json({ message: `${JSON.stringify(e)}` });
       }

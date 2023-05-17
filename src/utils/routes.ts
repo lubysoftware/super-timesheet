@@ -1,3 +1,5 @@
+import { NextApiRequest, NextApiResponse } from 'next';
+
 export enum Routes {
   Login = `/`,
   SignUp = `/sign-up`,
@@ -15,6 +17,11 @@ export const routes = {
   createAppointment: (): Routes => Routes.TimesheetAppointmentCreate,
   about: (): Routes => Routes.SystemOperation,
 
+  api: {
+    timesheet: { loadCookies: (): string => '/api/timesheet/load-cookies' },
+    utils: { encrypt: (): string => '/api/utils/encrypt' },
+  },
+
   private: [
     Routes.Configurations,
     Routes.GithubCommitsLoad,
@@ -30,3 +37,12 @@ export enum RouteTypes {
   Protected = 'protected',
   Public = 'public',
 }
+
+interface Request<Body> extends NextApiRequest {
+  body: Body;
+}
+
+export type ApiRoute<Response = unknown, Body = unknown> = (
+  request: Request<Body>,
+  response: NextApiResponse<Response | { message: string }>
+) => void | Promise<void>;
