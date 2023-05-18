@@ -1,4 +1,3 @@
-import { User } from '@/store/user/types';
 import { Endpoints } from '@octokit/types';
 
 export namespace Github {
@@ -23,9 +22,8 @@ export namespace Github {
 
   export interface Service {
     verifyTokenIsValid(token: string): Promise<boolean>;
-    loadRepositories(user: User): Promise<SimpleRepository[]>;
+    loadRepositories(): Promise<SimpleRepository[]>;
     loadBranches(
-      user: User,
       repository: SimpleRepository['fullName']
     ): Promise<SimpleBranch[]>;
   }

@@ -22,16 +22,14 @@ import { githubBranch } from '@/services/github/github-branch/service';
 import { githubRepository } from '@/services/github/github-repository/service';
 import { GithubRepository } from '@/services/github/github-repository/types';
 import { github } from '@/services/github/service';
-import { User } from '@/store/user/types';
 
 const List: FC<{
-  user: User;
   repositories: GithubRepository.Row[];
   reload(): void;
-}> = ({ repositories, reload, user }) => {
+}> = ({ repositories, reload }) => {
   const handleDelete = async (fullName: string): Promise<void> => {
     try {
-      await githubRepository.delete(user, fullName);
+      await githubRepository.delete(fullName);
       await reload();
     } catch (e) {
       toast.error(`Falha ao deleter um repositório: ${e}`);
@@ -99,12 +97,11 @@ const ListSkeleton: FC<{ length?: number }> = ({ length }) => (
 );
 
 const RepositorySelect: FC<{
-  user: User;
   setSearch(search: boolean): void;
   repository: string;
   setRepository(repository: string): void;
   setBranch(branch: string): void;
-}> = ({ user, repository, setRepository, setBranch, setSearch }) => {
+}> = ({ repository, setRepository, setBranch, setSearch }) => {
   const [repositories, setRepositories] = useState<string[]>([]);
   const [loading, setLoading] = useState<number>(0);
 
@@ -127,10 +124,10 @@ const RepositorySelect: FC<{
   useEffect(() => {
     setLoading((prev): number => prev + 1);
     github
-      .loadRepositories(user)
+      .loadRepositories()
       .then((repos) => setRepositories(repos.map(({ fullName }) => fullName)))
       .finally(() => setLoading((prev): number => prev - 1));
-  }, [user]);
+  }, []);
 
   if (loading > 0)
     return (
@@ -156,12 +153,11 @@ const RepositorySelect: FC<{
 };
 
 const BranchSelect: FC<{
-  user: User;
   search: boolean;
   repository: string;
   branchName: string;
   setBranch(branch: string): void;
-}> = ({ user, repository, branchName, setBranch, search }) => {
+}> = ({ repository, branchName, setBranch, search }) => {
   const [loading, setLoading] = useState(0);
   const [branches, setBranches] = useState<string[]>([]);
 
@@ -181,10 +177,10 @@ const BranchSelect: FC<{
 
     setLoading((prev): number => prev + 1);
     github
-      .loadBranches(user, repository)
+      .loadBranches(repository)
       .then((s) => setBranches(s.map(({ name }) => name)))
       .finally(() => setLoading((prev): number => prev - 1));
-  }, [repository, search, user]);
+  }, [repository, search]);
 
   if (loading > 0)
     return (
@@ -209,35 +205,52 @@ const BranchSelect: FC<{
   );
 };
 
-const Form: FC<{ user: User; reload(): void }> = ({ user, reload }) => {
+const Form: FC<{ reload(): void }> = ({ reload }) => {
+  const [loading, setLoading] = useState(false);
   const [searchBranch, setSearchBranch] = useState(false);
   const [fullName, setFullName] = useState<string>('');
   const [branchName, setBranchName] = useState<string>('');
 
   const handleCreate = async (): Promise<void> => {
+    setLoading(true);
     try {
-      await githubRepository.set(user, { fullName });
-      await githubBranch.set(user, { repository: fullName, name: branchName });
+      await githubRepository.set({ fullName });
+      await githubBranch.set({ repository: fullName, name: branchName });
 
       reload();
       setBranchName('');
       setFullName('');
     } catch (e) {
       toast.error(`Falha ao adicionar repositório: ${e}`);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading)
+    return (
+      <Grid item xs={12} container spacing={1}>
+        <Grid item xs={7}>
+          <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
+        </Grid>
+        <Grid item xs={4}>
+          <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
+        </Grid>
+        <Grid item xs={1}>
+          <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
+        </Grid>
+      </Grid>
+    );
 
   return (
     <Grid item xs={12} container spacing={1}>
       <RepositorySelect
-        user={user}
         setSearch={setSearchBranch}
         repository={fullName}
         setRepository={setFullName}
         setBranch={setBranchName}
       />
       <BranchSelect
-        user={user}
         search={searchBranch}
         repository={fullName}
         branchName={branchName}
@@ -262,24 +275,24 @@ const Form: FC<{ user: User; reload(): void }> = ({ user, reload }) => {
   );
 };
 
-export const RepositoryConfigurations: FC<{ user: User }> = ({ user }) => {
+export const RepositoryConfigurations: FC = () => {
   const [loading, setLoading] = useState(false);
   const [repositories, setRepositories] = useState<GithubRepository.Row[]>([]);
 
   const reload = useCallback(async (): Promise<void> => {
     setLoading(true);
 
-    const repos = await githubRepository.getAll(user);
+    const repos = await githubRepository.getAll();
 
     setRepositories(repos);
 
     setLoading(false);
-  }, [user]);
+  }, []);
 
   useEffect(() => void reload(), [reload]);
 
   return (
-    <Grid container spacing={1} px={8} alignItems="center">
+    <Grid container spacing={1} px={8}>
       <Grid
         item
         xs={3}
@@ -294,10 +307,10 @@ export const RepositoryConfigurations: FC<{ user: User }> = ({ user }) => {
         {loading ? (
           <ListSkeleton length={repositories.length} />
         ) : (
-          <List user={user} repositories={repositories || []} reload={reload} />
+          <List repositories={repositories || []} reload={reload} />
         )}
         {repositories.length > 0 && <Grid item xs={12} py={1} />}
-        <Form user={user} reload={reload} />
+        <Form reload={reload} />
       </Grid>
     </Grid>
   );

@@ -3,14 +3,17 @@ import { toast } from 'react-toastify';
 import { supabase } from '@/config/supabase';
 import { githubBranch } from '@/services/github/github-branch/service';
 import { GithubRepository } from '@/services/github/github-repository/types';
-import { User } from '@/store/user/types';
+import { getUser } from '@/store/user/store';
 
 export const githubRepository: GithubRepository.Service = {
   entity: 'GithubRepository',
   async set(
-    user: User,
     input: GithubRepository.Input
   ): Promise<GithubRepository.Row[] | undefined> {
+    const user = getUser();
+
+    if (!user) return;
+
     const { data, error } = await supabase
       .from(this.entity)
       .insert({ user: user.id, ...input })
@@ -22,10 +25,11 @@ export const githubRepository: GithubRepository.Service = {
 
     return data;
   },
-  async get(
-    user: User,
-    fullName: string
-  ): Promise<GithubRepository.Row[] | undefined> {
+  async get(fullName: string): Promise<GithubRepository.Row[] | undefined> {
+    const user = getUser();
+
+    if (!user) return;
+
     const { data, error } = await supabase
       .from(this.entity)
       .select()
@@ -38,7 +42,11 @@ export const githubRepository: GithubRepository.Service = {
 
     return data;
   },
-  async getAll(user: User): Promise<GithubRepository.Row[]> {
+  async getAll(): Promise<GithubRepository.Row[]> {
+    const user = getUser();
+
+    if (!user) return [];
+
     const { data, error } = await supabase
       .from(this.entity)
       .select()
@@ -62,7 +70,11 @@ export const githubRepository: GithubRepository.Service = {
 
     return data;
   },
-  async delete(user: User, fullName: string): Promise<boolean> {
+  async delete(fullName: string): Promise<boolean> {
+    const user = getUser();
+
+    if (!user) return false;
+
     const { error } = await supabase
       .from(this.entity)
       .delete()

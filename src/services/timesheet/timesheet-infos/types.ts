@@ -1,5 +1,4 @@
 import { Database } from '@/config/supabase.types';
-import { User } from '@/store/user/types';
 
 import { ZodObject, ZodString } from 'zod';
 
@@ -13,8 +12,8 @@ export namespace TimesheetInfos {
 
   export interface Service {
     entity: 'TimesheetInfos';
-    set(user: User, input: Input): Promise<Row[] | undefined>;
-    get(user: User): Promise<Row[] | undefined>;
+    set(input: Input): Promise<Row[] | undefined>;
+    get(): Promise<Row[] | undefined>;
     schema: ZodObject<{ login: ZodString; password: ZodString }>;
   }
 

@@ -19,3 +19,5 @@ const useUserStore = create<UserStoreTypes>()(
 );
 
 export default useUserStore;
+
+export const getUser = (): User | undefined => useUserStore.getState().user;

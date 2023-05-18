@@ -3,19 +3,20 @@ import { toast } from 'react-toastify';
 import { supabase } from '@/config/supabase';
 import { GithubInfos } from '@/services/github/github-infos/types';
 import { github } from '@/services/github/service';
-import { User } from '@/store/user/types';
+import { getUser } from '@/store/user/store';
 
 export const githubInfos: GithubInfos.Service = {
   entity: 'GithubInfos',
-  async set(
-    user: User,
-    input: GithubInfos.Input
-  ): Promise<GithubInfos.Row[] | undefined> {
+  async set(input: GithubInfos.Input): Promise<GithubInfos.Row[] | undefined> {
+    const user = getUser();
+
+    if (!user) return;
+
     const isValid = await github.verifyTokenIsValid(input.token);
 
     if (!isValid) return;
 
-    const exists = await this.get(user);
+    const exists = await this.get();
 
     let response;
 
@@ -40,7 +41,11 @@ export const githubInfos: GithubInfos.Service = {
 
     return data;
   },
-  async get(user: User): Promise<GithubInfos.Row[] | undefined> {
+  async get(): Promise<GithubInfos.Row[] | undefined> {
+    const user = getUser();
+
+    if (!user) return;
+
     const { data, error } = await supabase
       .from(this.entity)
       .select()

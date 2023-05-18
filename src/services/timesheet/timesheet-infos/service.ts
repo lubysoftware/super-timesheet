@@ -4,7 +4,7 @@ import { supabase } from '@/config/supabase';
 import { timesheet } from '@/services/timesheet/service';
 import { TimesheetInfos } from '@/services/timesheet/timesheet-infos/types';
 import { Timesheet } from '@/services/timesheet/types';
-import { User } from '@/store/user/types';
+import { getUser } from '@/store/user/store';
 import { routes } from '@/utils/routes';
 
 import axios from 'axios';
@@ -13,9 +13,12 @@ import { z } from 'zod';
 export const timesheetInfos: TimesheetInfos.Service = {
   entity: 'TimesheetInfos',
   async set(
-    user: User,
     input: TimesheetInfos.Input
   ): Promise<TimesheetInfos.Row[] | undefined> {
+    const user = getUser();
+
+    if (!user) return;
+
     const isValid = await timesheet.verifyLoginIsValid(input);
 
     if (!isValid) return void toast.error('Login inválido');
@@ -26,7 +29,7 @@ export const timesheetInfos: TimesheetInfos.Service = {
       text: input.password,
     });
 
-    const exists = await this.get(user);
+    const exists = await this.get();
 
     let response;
 
@@ -49,7 +52,11 @@ export const timesheetInfos: TimesheetInfos.Service = {
 
     return data;
   },
-  async get(user: User): Promise<TimesheetInfos.Row[] | undefined> {
+  async get(): Promise<TimesheetInfos.Row[] | undefined> {
+    const user = getUser();
+
+    if (!user) return;
+
     const { data, error } = await supabase
       .from(this.entity)
       .select()

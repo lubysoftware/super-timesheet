@@ -5,17 +5,16 @@ import { GithubBranch } from '@/services/github/github-branch/types';
 import { githubInfos } from '@/services/github/github-infos/service';
 import { githubRepository } from '@/services/github/github-repository/service';
 import { GithubRepository } from '@/services/github/github-repository/types';
-import { User } from '@/store/user/types';
+import { getUser } from '@/store/user/store';
 
 import { Octokit } from 'octokit';
 
 export const githubBranch: GithubBranch.Service = {
   entity: 'GithubBranch',
   async set(
-    user: User,
     input: GithubBranch.Input
   ): Promise<GithubBranch.Row[] | undefined> {
-    const repositories = await githubRepository.get(user, input.repository);
+    const repositories = await githubRepository.get(input.repository);
 
     if (!repositories || repositories.length === 0) {
       toast.error('Repositório inválido');
@@ -27,11 +26,7 @@ export const githubBranch: GithubBranch.Service = {
 
     const exists = await this.get(repository);
 
-    const sha = await this.verifyBranchIsValid(
-      user,
-      input.repository,
-      input.name
-    );
+    const sha = await this.verifyBranchIsValid(input.repository, input.name);
 
     if (!sha) return [];
 
@@ -73,11 +68,14 @@ export const githubBranch: GithubBranch.Service = {
     return data;
   },
   async verifyBranchIsValid(
-    user: User,
     repository: string,
     branch: string
   ): Promise<string | undefined> {
     try {
+      const user = getUser();
+
+      if (!user) return;
+
       const infos = await githubInfos.get(user);
 
       if (!infos) return;
@@ -93,7 +91,6 @@ export const githubBranch: GithubBranch.Service = {
 
       return response.data.commit.sha;
     } catch (e) {
-      console.log(e);
       toast.error('A branch informada é inválida');
     }
   },

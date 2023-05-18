@@ -16,9 +16,8 @@ import {
 import { InputProps as StandardInputProps } from '@mui/material/Input/Input';
 
 import { githubInfos } from '@/services/github/github-infos/service';
-import { User } from '@/store/user/types';
 
-export const SetGithubTokenView: FC<{ user: User }> = ({ user }) => {
+export const SetGithubTokenView: FC = () => {
   const [token, setToken] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +28,7 @@ export const SetGithubTokenView: FC<{ user: User }> = ({ user }) => {
   const handleSave = async (): Promise<void> => {
     setLoading(true);
     try {
-      const data = await githubInfos.set(user, { token });
+      const data = await githubInfos.set({ token });
 
       if (data && data.length > 0) {
         toast.success('O token foi atualizado com sucesso!');
@@ -46,10 +45,10 @@ export const SetGithubTokenView: FC<{ user: User }> = ({ user }) => {
   useEffect(() => {
     setLoading(true);
     githubInfos
-      .get(user)
+      .get()
       .then((data) => data && data.length > 0 && setToken(data[0].token))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, []);
 
   return (
     <Grid container spacing={1} px={8}>

@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 
 import { githubInfos } from '@/services/github/github-infos/service';
 import { Github } from '@/services/github/types';
-import { User } from '@/store/user/types';
+import { getUser } from '@/store/user/store';
 
 import { Octokit } from 'octokit';
 
@@ -21,7 +21,11 @@ export const github: Github.Service = {
       return false;
     }
   },
-  async loadRepositories(user: User): Promise<Github.SimpleRepository[]> {
+  async loadRepositories(): Promise<Github.SimpleRepository[]> {
+    const user = getUser();
+
+    if (!user) return [];
+
     const infos = await githubInfos.get(user);
 
     if (!infos) return [];
@@ -61,9 +65,12 @@ export const github: Github.Service = {
     );
   },
   async loadBranches(
-    user: User,
     repository: Github.SimpleRepository['fullName']
   ): Promise<Github.SimpleBranch[]> {
+    const user = getUser();
+
+    if (!user) return [];
+
     const [owner, repo] = repository.split('/');
 
     const infos = await githubInfos.get(user);

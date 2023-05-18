@@ -8,10 +8,9 @@ import { Grid, IconButton, Skeleton, Typography } from '@mui/material';
 import { Form } from '@/components/form';
 import { timesheetInfos } from '@/services/timesheet/timesheet-infos/service';
 import { TimesheetInfos } from '@/services/timesheet/timesheet-infos/types';
-import { User } from '@/store/user/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-export const SetTimesheetInfosView: FC<{ user: User }> = ({ user }) => {
+export const SetTimesheetInfosView: FC = () => {
   const [loading, setLoading] = useState<number>(0);
 
   const form = useForm<TimesheetInfos.Input>({
@@ -21,7 +20,7 @@ export const SetTimesheetInfosView: FC<{ user: User }> = ({ user }) => {
   const handleSave = async (formData: TimesheetInfos.Input): Promise<void> => {
     setLoading((prev): number => prev + 1);
     try {
-      const response = await timesheetInfos.set(user, formData);
+      const response = await timesheetInfos.set(formData);
 
       if (response && response.length > 0) {
         toast.success('Autenticação salva com sucesso!');
@@ -36,13 +35,13 @@ export const SetTimesheetInfosView: FC<{ user: User }> = ({ user }) => {
   useEffect(() => {
     setLoading((prev): number => prev + 1);
     timesheetInfos
-      .get(user)
+      .get()
       .then(
         (data) =>
           data && data.length > 0 && form.setValue('login', data[0].login)
       )
       .finally(() => setLoading((prev): number => prev - 1));
-  }, [form, user]);
+  }, [form]);
 
   return (
     <Grid container spacing={1} px={8}>

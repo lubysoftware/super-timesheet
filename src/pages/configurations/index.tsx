@@ -33,13 +33,13 @@ const ConfigurationsPage: NextPage = () => {
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <SetGithubTokenView user={user} />
+        <SetGithubTokenView />
       </Grid>
       <Grid item xs={12}>
-        <SetTimesheetInfosView user={user} />
+        <SetTimesheetInfosView />
       </Grid>
       <Grid item xs={12}>
-        <RepositoryConfigurations user={user} />
+        <RepositoryConfigurations />
       </Grid>
     </Grid>
   );

@@ -1,5 +1,4 @@
 import { Database } from '@/config/supabase.types';
-import { User } from '@/store/user/types';
 
 export namespace GithubInfos {
   export interface Input {
@@ -10,7 +9,7 @@ export namespace GithubInfos {
 
   export interface Service {
     entity: 'GithubInfos';
-    set(user: User, input: Input): Promise<Row[] | undefined>;
-    get(user: User): Promise<Row[] | undefined>;
+    set(input: Input): Promise<Row[] | undefined>;
+    get(): Promise<Row[] | undefined>;
   }
 }
