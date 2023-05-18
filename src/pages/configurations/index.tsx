@@ -6,6 +6,7 @@ import { NextPage } from 'next';
 import { Grid, Typography } from '@mui/material';
 
 import { SetGithubTokenView } from '@/components/configurations/github-token/view';
+import { RepositoryConfigurations } from '@/components/configurations/repository-client/view';
 import { SetTimesheetInfosView } from '@/components/configurations/timesheet-infos/view';
 import Loading from '@/components/loading';
 import useAuthVerify from '@/hooks/use-auth-verify';
@@ -36,6 +37,9 @@ const ConfigurationsPage: NextPage = () => {
       </Grid>
       <Grid item xs={12}>
         <SetTimesheetInfosView user={user} />
+      </Grid>
+      <Grid item xs={12}>
+        <RepositoryConfigurations user={user} />
       </Grid>
     </Grid>
   );
