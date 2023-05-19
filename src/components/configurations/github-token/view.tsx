@@ -51,14 +51,10 @@ export const SetGithubTokenView: FC = () => {
   }, []);
 
   return (
-    <Grid container spacing={1} px={8}>
-      <Grid
-        item
-        xs={3}
-        style={{ borderRight: '1px solid rgba(255, 255, 255, 0.1)' }}
-        paddingRight={2}
-      >
-        <Typography variant="h5" component="h2" textAlign="right">
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <Typography variant="h5" component="h2">
+          Github Token
           <Tooltip title="Insira aqui um 'Personal access tokens (classic)' que pode ser gerado clicando aqui">
             <IconButton
               aria-label="Salvar token"
@@ -70,10 +66,9 @@ export const SetGithubTokenView: FC = () => {
               <InfoIcon color="disabled" fontSize="small" />
             </IconButton>
           </Tooltip>
-          Github Token
         </Typography>
       </Grid>
-      <Grid item xs={9} container spacing={1}>
+      <Grid item xs={12} container spacing={1}>
         <Grid item xs={12} container spacing={1}>
           <Grid item xs={11}>
             {loading ? (

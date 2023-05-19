@@ -1,5 +1,6 @@
 import { Database } from '@/config/supabase.types';
 import { GithubBranch } from '@/services/github/github-branch/types';
+import { TimesheetProject } from '@/services/timesheet/timesheet-project/types';
 
 export namespace GithubRepository {
   export interface Input {
@@ -8,6 +9,7 @@ export namespace GithubRepository {
 
   export type Row = Database['public']['Tables']['GithubRepository']['Row'] & {
     branch?: GithubBranch.Row;
+    project?: TimesheetProject.Row;
   };
 
   export interface Service {

@@ -26,7 +26,7 @@ export const github: Github.Service = {
 
     if (!user) return [];
 
-    const infos = await githubInfos.get(user);
+    const infos = await githubInfos.get();
 
     if (!infos) return [];
 
@@ -73,7 +73,7 @@ export const github: Github.Service = {
 
     const [owner, repo] = repository.split('/');
 
-    const infos = await githubInfos.get(user);
+    const infos = await githubInfos.get();
 
     if (!infos) return [];
 

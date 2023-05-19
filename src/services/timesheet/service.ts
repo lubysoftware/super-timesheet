@@ -1,11 +1,12 @@
 import { toast } from 'react-toastify';
 
 import { Timesheet } from '@/services/timesheet/types';
+import useTimesheetStore from '@/store/timesheet/store';
 import { routes } from '@/utils/routes';
 
 import axios from 'axios';
 import { wrapper } from 'axios-cookiejar-support';
-import { createCipheriv, randomBytes, scrypt } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto';
 import { Cookie, CookieJar } from 'tough-cookie';
 import { promisify } from 'util';
 
@@ -18,6 +19,15 @@ export const timesheet: Timesheet.Service = {
     homeIndex: `${home}/Home/Index`,
     worksheetRead: `${home}/Worksheet/Read`,
     controlPanelManagerDeveloper: `${home}/ControlPanel/ManagerDeveloper`,
+  },
+  isLoading(): boolean {
+    return useTimesheetStore.getState().loading;
+  },
+  enableLoading(): void {
+    return useTimesheetStore.setState({ loading: true });
+  },
+  disableLoading(): void {
+    return useTimesheetStore.setState({ loading: false });
   },
   async encryptPassword(text): Promise<Timesheet.CryptoHash> {
     const iv = randomBytes(16);
@@ -36,6 +46,26 @@ export const timesheet: Timesheet.Service = {
       iv: iv.toString('hex'),
       content: encrypted.toString('hex'),
     };
+  },
+  async decryptPassword(hash: Timesheet.CryptoHash): Promise<string> {
+    const key: Buffer = (await promisify(scrypt)(
+      `${process.env.AZURE_SECRET}`,
+      'salt',
+      32
+    )) as Buffer;
+
+    const decipher = createDecipheriv(
+      'aes-256-ctr',
+      key,
+      Buffer.from(hash.iv, 'hex')
+    );
+
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(hash.content, 'hex')),
+      decipher.final(),
+    ]);
+
+    return decrypted.toString();
   },
   async loadCookies(login: string, password: string): Promise<Cookie[]> {
     try {

@@ -76,7 +76,7 @@ export const githubBranch: GithubBranch.Service = {
 
       if (!user) return;
 
-      const infos = await githubInfos.get(user);
+      const infos = await githubInfos.get();
 
       if (!infos) return;
 

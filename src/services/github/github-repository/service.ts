@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { supabase } from '@/config/supabase';
 import { githubBranch } from '@/services/github/github-branch/service';
 import { GithubRepository } from '@/services/github/github-repository/types';
+import { timesheetProject } from '@/services/timesheet/timesheet-project/service';
 import { getUser } from '@/store/user/store';
 
 export const githubRepository: GithubRepository.Service = {
@@ -61,8 +62,13 @@ export const githubRepository: GithubRepository.Service = {
     if (data) {
       const promise = data.map(async (repo) => {
         const branch = await githubBranch.get(repo.id);
+        const project = await timesheetProject.get(repo.id);
 
-        return branch ? { ...repo, branch: branch[0] } : repo;
+        return {
+          ...repo,
+          branch: branch ? branch[0] : undefined,
+          project: project ? project[0] : undefined,
+        };
       });
 
       return await Promise.all(promise);

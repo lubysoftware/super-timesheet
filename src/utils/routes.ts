@@ -18,7 +18,10 @@ export const routes = {
   about: (): Routes => Routes.SystemOperation,
 
   api: {
-    timesheet: { loadCookies: (): string => '/api/timesheet/load-cookies' },
+    timesheet: {
+      loadClients: (): string => '/api/timesheet/load-clients',
+      loadCookies: (): string => '/api/timesheet/load-cookies',
+    },
     utils: { encrypt: (): string => '/api/utils/encrypt' },
   },
 

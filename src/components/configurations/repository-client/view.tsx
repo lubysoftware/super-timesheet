@@ -1,9 +1,11 @@
 import {
   FC,
+  ReactElement,
   ReactNode,
   SyntheticEvent,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { toast } from 'react-toastify';
@@ -22,6 +24,10 @@ import { githubBranch } from '@/services/github/github-branch/service';
 import { githubRepository } from '@/services/github/github-repository/service';
 import { GithubRepository } from '@/services/github/github-repository/types';
 import { github } from '@/services/github/service';
+import { timesheetClient } from '@/services/timesheet/timesheet-client/service';
+import { timesheetProject } from '@/services/timesheet/timesheet-project/service';
+import { TimesheetProject } from '@/services/timesheet/timesheet-project/types';
+import useTimesheetStore from '@/store/timesheet/store';
 
 const List: FC<{
   repositories: GithubRepository.Row[];
@@ -40,7 +46,7 @@ const List: FC<{
     <>
       {repositories.map((repo, idx) => (
         <Grid item xs={12} container spacing={1} key={idx}>
-          <Grid item xs={7}>
+          <Grid item xs={4} title={repo.fullName}>
             <TextField
               label="Repositório"
               size="small"
@@ -49,7 +55,7 @@ const List: FC<{
               disabled
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3} title={repo.branch?.name}>
             <TextField
               label="Branch"
               size="small"
@@ -58,7 +64,20 @@ const List: FC<{
               disabled
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid
+            item
+            xs={4}
+            title={`${repo.project?.clientName} - ${repo.project?.projectName}`}
+          >
+            <TextField
+              label="Projeto"
+              size="small"
+              value={repo.project?.projectName}
+              fullWidth
+              disabled
+            />
+          </Grid>
+          <Grid item xs={1} title="Apagar repositório">
             <IconButton
               style={{
                 border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -82,7 +101,10 @@ const ListSkeleton: FC<{ length?: number }> = ({ length }) => (
   <>
     {[...new Array(length || 3)].map((_, i) => (
       <Grid item xs={12} container spacing={1} key={i}>
-        <Grid item xs={7}>
+        <Grid item xs={4}>
+          <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
+        </Grid>
+        <Grid item xs={3}>
           <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
         </Grid>
         <Grid item xs={4}>
@@ -131,13 +153,13 @@ const RepositorySelect: FC<{
 
   if (loading > 0)
     return (
-      <Grid item xs={7}>
+      <Grid item xs={4}>
         <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
       </Grid>
     );
 
   return (
-    <Grid item xs={7}>
+    <Grid item xs={4}>
       <Autocomplete
         color="primary"
         inputValue={repository}
@@ -184,13 +206,13 @@ const BranchSelect: FC<{
 
   if (loading > 0)
     return (
-      <Grid item xs={4}>
+      <Grid item xs={3}>
         <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
       </Grid>
     );
 
   return (
-    <Grid item xs={4}>
+    <Grid item xs={3}>
       <Autocomplete
         color="primary"
         inputValue={branchName}
@@ -205,21 +227,110 @@ const BranchSelect: FC<{
   );
 };
 
+type ProjectInput = Omit<TimesheetProject.Input, 'repository'>;
+
+const ProjectSelect: FC<{
+  project: ProjectInput;
+  setProject(project: ProjectInput): void;
+}> = ({ project, setProject }) => {
+  const { loading, clients } = useTimesheetStore();
+
+  const options: ProjectInput[] = useMemo(() => {
+    const aux: ProjectInput[] = [];
+
+    clients.forEach(({ id, title, projects }) =>
+      projects.forEach(({ id: code, name }) =>
+        aux.push({
+          client: { code: +id, name: title },
+          project: { code, name },
+        })
+      )
+    );
+
+    return aux;
+  }, [clients]);
+
+  const handleProjectChange = async (
+    _: SyntheticEvent,
+    name: string
+  ): Promise<void> => {
+    const p = options.find((o) => o.project.name === name);
+
+    if (p) setProject(p);
+  };
+
+  useEffect(() => void timesheetClient.getAll(), []);
+
+  if (loading && clients.length === 0)
+    return (
+      <Grid item xs={4}>
+        <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
+      </Grid>
+    );
+
+  return (
+    <Grid item xs={4}>
+      <Autocomplete
+        color="primary"
+        disableClearable
+        inputValue={project?.project.name}
+        onInputChange={handleProjectChange}
+        disablePortal
+        options={options}
+        groupBy={(option): string => option.client.name}
+        getOptionLabel={(option): string => option.project.name}
+        isOptionEqualToValue={(option, value): boolean =>
+          option.project.name === value.project.name
+        }
+        renderInput={(params): ReactNode => (
+          <TextField {...params} label="Projeto" size="small" />
+        )}
+        renderGroup={(params): ReactElement => (
+          <li key={params.key}>
+            <div
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.3)',
+                padding: '4px 8px',
+                flex: 1,
+              }}
+            >
+              <Typography variant="overline" style={{ lineHeight: 0 }}>
+                {params.group}
+              </Typography>
+            </div>
+            <Typography>{params.children}</Typography>
+          </li>
+        )}
+      />
+    </Grid>
+  );
+};
+
 const Form: FC<{ reload(): void }> = ({ reload }) => {
   const [loading, setLoading] = useState(false);
   const [searchBranch, setSearchBranch] = useState(false);
   const [fullName, setFullName] = useState<string>('');
   const [branchName, setBranchName] = useState<string>('');
+  const [project, setProject] = useState<ProjectInput>({
+    client: { code: 0, name: '' },
+    project: { code: 0, name: '' },
+  });
 
   const handleCreate = async (): Promise<void> => {
     setLoading(true);
     try {
+      if (!project) return;
       await githubRepository.set({ fullName });
       await githubBranch.set({ repository: fullName, name: branchName });
+      await timesheetProject.set({ repository: fullName, ...project });
 
       reload();
       setBranchName('');
       setFullName('');
+      setProject({
+        client: { code: 0, name: '' },
+        project: { code: 0, name: '' },
+      });
     } catch (e) {
       toast.error(`Falha ao adicionar repositório: ${e}`);
     } finally {
@@ -230,7 +341,10 @@ const Form: FC<{ reload(): void }> = ({ reload }) => {
   if (loading)
     return (
       <Grid item xs={12} container spacing={1}>
-        <Grid item xs={7}>
+        <Grid item xs={4}>
+          <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
+        </Grid>
+        <Grid item xs={3}>
           <Skeleton width="100%" height={40} sx={{ transform: 'none' }} />
         </Grid>
         <Grid item xs={4}>
@@ -256,6 +370,7 @@ const Form: FC<{ reload(): void }> = ({ reload }) => {
         branchName={branchName}
         setBranch={setBranchName}
       />
+      <ProjectSelect project={project} setProject={setProject} />
       <Grid item xs={1}>
         <IconButton
           style={{
@@ -266,7 +381,7 @@ const Form: FC<{ reload(): void }> = ({ reload }) => {
           }}
           aria-label="Adicionar repositório"
           onClick={handleCreate}
-          disabled={!(fullName && branchName)}
+          disabled={!(fullName && branchName && project.project.code !== 0)}
         >
           <AddIcon color="disabled" />
         </IconButton>
@@ -292,18 +407,13 @@ export const RepositoryConfigurations: FC = () => {
   useEffect(() => void reload(), [reload]);
 
   return (
-    <Grid container spacing={1} px={8}>
-      <Grid
-        item
-        xs={3}
-        style={{ borderRight: '1px solid rgba(255, 255, 255, 0.1)' }}
-        paddingRight={2}
-      >
-        <Typography variant="h5" component="h2" textAlign="right">
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <Typography variant="h5" component="h2">
           Repositórios e Projetos
         </Typography>
       </Grid>
-      <Grid item xs={9} container spacing={1} alignItems="center">
+      <Grid item xs={12} container spacing={1} alignItems="center">
         {loading ? (
           <ListSkeleton length={repositories.length} />
         ) : (
