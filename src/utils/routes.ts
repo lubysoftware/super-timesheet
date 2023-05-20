@@ -21,6 +21,7 @@ export const routes = {
     timesheet: {
       loadClients: (): string => '/api/timesheet/load-clients',
       loadCookies: (): string => '/api/timesheet/load-cookies',
+      sendAppointments: (): string => '/api/timesheet/send-appointments',
     },
     utils: { encrypt: (): string => '/api/utils/encrypt' },
   },

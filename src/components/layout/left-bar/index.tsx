@@ -104,7 +104,7 @@ const items: Bar.Group[] = [
       {
         Icon: AddIcon,
         name: 'Incluir',
-        // route: Routes.TimesheetAppointmentCreate,
+        route: Routes.TimesheetAppointmentCreate,
       },
       {
         Icon: GithubIcon,
@@ -124,7 +124,7 @@ const items: Bar.Group[] = [
       {
         Icon: SettingsIcon,
         name: 'Configurações',
-        // route: Routes.Configurations,
+        route: Routes.Configurations,
       },
     ],
   },
