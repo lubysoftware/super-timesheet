@@ -20,6 +20,17 @@ export namespace Github {
     sha: Branch['commit']['sha'];
   }
 
+  export type Commits =
+    Endpoints['GET /repos/{owner}/{repo}/commits']['response']['data'];
+  export type Commit = Commits[number];
+
+  export interface SimpleCommit {
+    repo: SimpleRepository['fullName'];
+    date: string;
+    description: Commit['commit']['message'];
+    commit: Commit['html_url'];
+  }
+
   export interface Service {
     verifyTokenIsValid(token: string): Promise<boolean>;
     loadRepositories(): Promise<SimpleRepository[]>;
