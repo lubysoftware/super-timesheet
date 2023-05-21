@@ -1,12 +1,7 @@
 {
   "functions": {
-    "api/timesheet/*.ts": {
-      "memory": 3008,
-      "maxDuration": 30
-    },
-    "api/utils/*.ts": {
-      "memory": 3008,
-      "maxDuration": 30
+    "api/**/*": {
+      "maxDuration": 120
     }
   }
 }
