@@ -10,6 +10,7 @@ import { supabase } from '@/config/supabase';
 import useAuthVerify from '@/hooks/use-auth-verify';
 import useUiStore from '@/store/ui/store';
 import { Load } from '@/store/ui/types';
+import { getURL } from '@/utils/get-url';
 import { RouteTypes } from '@/utils/routes';
 
 const Home: NextPage = () => {
@@ -20,7 +21,10 @@ const Home: NextPage = () => {
   const handleSignIn = async (): Promise<void> => {
     enableLoad(Load.RedirectToConfigurations);
 
-    await supabase.auth.signInWithOAuth({ provider: 'github' });
+    await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: { redirectTo: getURL() },
+    });
   };
 
   useEffect(() => disableLoad(Load.RedirectToLogin), [disableLoad]);
