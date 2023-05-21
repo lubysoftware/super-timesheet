@@ -119,7 +119,8 @@ const items: Bar.Group[] = [
     items: [
       {
         Icon: InfoIcon,
-        name: 'Funcionamento' /* route: Routes.SystemOperation*/,
+        name: 'Funcionamento',
+        route: Routes.SystemOperation,
       },
       {
         Icon: SettingsIcon,
