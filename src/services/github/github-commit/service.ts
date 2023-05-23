@@ -3,6 +3,7 @@ import { GithubCommit } from '@/services/github/github-commit/types';
 import { githubInfos } from '@/services/github/github-infos/service';
 import { githubRepository } from '@/services/github/github-repository/service';
 import { Github } from '@/services/github/types';
+import { TimesheetAppointment } from '@/services/timesheet/timesheet-appointment/types';
 import { getUser } from '@/store/user/store';
 import { translate } from '@vitalets/google-translate-api';
 
@@ -267,5 +268,59 @@ export const githubCommit: GithubCommit.Service = {
     const byDay = await this.groupByDay(commits);
 
     return await this.groupByTime(byDay, options.dayTimes);
+  },
+
+  async loadAppointments(
+    options: GithubCommit.Input
+  ): Promise<TimesheetAppointment.Schema['appointments']> {
+    const repositoryProjects = await githubRepository.getAll();
+    const commits = await this.groupedLoad(options);
+    const aux: TimesheetAppointment.Schema['appointments'] = [];
+
+    const promise = commits.map(async (item) => {
+      const promise = item.commits.map(async (commit) => {
+        const repos = commit.items.map((i) =>
+          repositoryProjects.find((r) => r.fullName.split('/')[1] === i.repo)
+        );
+        const repo = repos[0]?.project;
+
+        const description = `${commit.items
+          .map(
+            (item) =>
+              `Em "${item.repo}":\n` +
+              item.commits
+                .map(
+                  (subCommits, sci, { length }) =>
+                    `- ${subCommits.description} (${subCommits.commit})${
+                      length - 1 === sci ? '.' : ';'
+                    }`
+                )
+                .join('\n')
+          )
+          .join('\n\n')}`;
+
+        aux.push({
+          client: repo
+            ? { label: repo.clientName, value: String(repo.clientCode) }
+            : undefined,
+          project: repo
+            ? { label: repo.projectName, value: String(repo.projectCode) }
+            : undefined,
+          category: undefined,
+          date: item.date,
+          start: commit.startTime,
+          end: commit.endTime,
+          description,
+        });
+
+        return aux;
+      });
+
+      return await Promise.all(promise);
+    });
+
+    await Promise.all(promise);
+
+    return aux;
   },
 };

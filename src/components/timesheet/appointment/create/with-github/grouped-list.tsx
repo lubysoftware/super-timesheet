@@ -5,28 +5,16 @@ import { toast } from 'react-toastify';
 
 import { Button, Grid } from '@mui/material';
 
-import styled from '@emotion/styled';
-
 import { Form } from '@/components/form';
 import Loading from '@/components/loading';
 import { AppointmentForm } from '@/components/timesheet/appointment/create/form';
-import { GithubCommit } from '@/services/github/github-commit/types';
 import { timesheetAppointment } from '@/services/timesheet/timesheet-appointment/service';
 import { TimesheetAppointment } from '@/services/timesheet/timesheet-appointment/types';
 import useTimesheetStore from '@/store/timesheet/store';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-const AppointmentListContainer = styled.div`
-  display: flex;
-  flex: 2;
-
-  @media (min-width: ${({ theme }): number => theme.breakpoints.values.xl}px) {
-    flex: 4;
-  }
-`;
-
 export const GroupedList: FC<{
-  result: GithubCommit.GithubCommitDayTimeGroup[];
+  result: TimesheetAppointment.Schema['appointments'];
 }> = ({ result }) => {
   const [loading, setLoading] = useState(false);
 
@@ -120,58 +108,31 @@ export const GroupedList: FC<{
   useEffect(() => {
     remove();
 
-    result.forEach((item) =>
-      item.commits.forEach((commit) =>
-        append({
-          client: undefined,
-          project: undefined,
-          category: undefined,
-          date: item.date,
-          start: commit.startTime,
-          end: commit.endTime,
-          description: `${commit.items
-            .map(
-              (item) =>
-                `Em "${item.repo}":\n` +
-                item.commits
-                  .map(
-                    (subCommits, sci, { length }) =>
-                      `- ${subCommits.description} (${subCommits.commit})${
-                        length - 1 === sci ? '.' : ';'
-                      }`
-                  )
-                  .join('\n')
-            )
-            .join('\n\n')}`,
-        })
-      )
-    );
+    result.forEach((item) => append(item));
   }, [append, clients, result, remove]);
 
   return (
     <>
-      <AppointmentListContainer>
-        <FormProvider {...appointmentForm}>
-          <Form.Container spacing={1} xs={12} onSubmit={handleSubmit}>
-            {fields.map((field, index) => (
-              <AppointmentForm
-                field={field}
-                index={index}
-                add={handleAddBetween}
-                remove={handleRemove}
-                key={field.id}
-              />
-            ))}
-            {fields.length > 0 && (
-              <Grid item xs={12}>
-                <Button type="submit" variant="outlined" fullWidth>
-                  Enviar apontamentos
-                </Button>
-              </Grid>
-            )}
-          </Form.Container>
-        </FormProvider>
-      </AppointmentListContainer>
+      <FormProvider {...appointmentForm}>
+        <Form.Container spacing={1} xs={12} onSubmit={handleSubmit}>
+          {fields.map((field, index) => (
+            <AppointmentForm
+              field={field}
+              index={index}
+              add={handleAddBetween}
+              remove={handleRemove}
+              key={field.id}
+            />
+          ))}
+          {fields.length > 0 && (
+            <Grid item xs={12}>
+              <Button type="submit" variant="outlined" fullWidth>
+                Enviar apontamentos
+              </Button>
+            </Grid>
+          )}
+        </Form.Container>
+      </FormProvider>
       {loading && (
         <Loading
           texts={[

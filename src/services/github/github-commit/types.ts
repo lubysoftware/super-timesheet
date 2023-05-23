@@ -1,5 +1,6 @@
 import { gitCommitReadFormSchema } from '@/services/github/github-commit/schema';
 import { Github } from '@/services/github/types';
+import { TimesheetAppointment } from '@/services/timesheet/timesheet-appointment/types';
 
 export namespace GithubCommit {
   export interface DayTime {
@@ -51,6 +52,11 @@ export namespace GithubCommit {
     commits: GithubCommitTimeGroup[];
   }
 
+  export interface AppointmentCommitBased {
+    date: Github.SimpleCommit['date'];
+    commits: GithubCommitTimeGroup[];
+  }
+
   export interface Service {
     schema: typeof gitCommitReadFormSchema;
     dateNow(dateString: Github.SimpleCommit['date']): string;
@@ -61,6 +67,9 @@ export namespace GithubCommit {
     ): Github.SimpleCommit[];
     sortCommitsByDate(commits: Github.SimpleCommit[]): Github.SimpleCommit[];
     load(when?: DateFilter): Promise<Github.SimpleCommit[]>;
+    loadAppointments(
+      options: Input
+    ): Promise<TimesheetAppointment.Schema['appointments']>;
     simpleLoad(options: Input): Promise<Github.SimpleCommit[]>;
     groupedLoad(options: Input): Promise<GithubCommitDayTimeGroup[]>;
     groupByDay(commits: Github.SimpleCommit[]): Promise<GithubCommitDayGroup[]>;
