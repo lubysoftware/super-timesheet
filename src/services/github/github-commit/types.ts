@@ -59,7 +59,6 @@ export namespace GithubCommit {
 
   export interface Service {
     schema: typeof gitCommitReadFormSchema;
-    dateNow(dateString: Github.SimpleCommit['date']): string;
     simplifyCommit(repo: string, _: Github.Commit): Github.SimpleCommit;
     removeMerge(commits: Github.SimpleCommit[]): Github.SimpleCommit[];
     joinRepositoryCommits(
@@ -70,7 +69,6 @@ export namespace GithubCommit {
     loadAppointments(
       options: Input
     ): Promise<TimesheetAppointment.Schema['appointments']>;
-    simpleLoad(options: Input): Promise<Github.SimpleCommit[]>;
     groupedLoad(options: Input): Promise<GithubCommitDayTimeGroup[]>;
     groupByDay(commits: Github.SimpleCommit[]): Promise<GithubCommitDayGroup[]>;
     groupByTime(

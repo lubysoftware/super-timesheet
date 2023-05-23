@@ -7,27 +7,11 @@ import { TimesheetAppointment } from '@/services/timesheet/timesheet-appointment
 import { getUser } from '@/store/user/store';
 import { translate } from '@vitalets/google-translate-api';
 
+import { formatISO } from 'date-fns';
 import { Octokit } from 'octokit';
 
 export const githubCommit: GithubCommit.Service = {
   schema: gitCommitReadFormSchema,
-
-  dateNow(dateString: string): string {
-    const date = new Date(dateString);
-
-    date.setHours(date.getHours() - 3);
-
-    return date.toISOString();
-  },
-
-  simplifyCommit(repo: string, _: Github.Commit): Github.SimpleCommit {
-    return {
-      repo,
-      date: this.dateNow(_.commit.committer?.date || ''),
-      description: _.commit.message,
-      commit: _.html_url,
-    };
-  },
 
   removeMerge(commits: Github.SimpleCommit[]): Github.SimpleCommit[] {
     return commits.filter(
@@ -35,6 +19,15 @@ export const githubCommit: GithubCommit.Service = {
         !description.includes("Merge branch '") &&
         !description.includes('Merge pull request #')
     );
+  },
+
+  simplifyCommit(repo: string, _: Github.Commit): Github.SimpleCommit {
+    return {
+      repo,
+      date: formatISO(new Date(_.commit.committer?.date || '')),
+      description: _.commit.message,
+      commit: _.html_url,
+    };
   },
 
   joinRepositoryCommits(
@@ -99,6 +92,61 @@ export const githubCommit: GithubCommit.Service = {
     return this.sortCommitsByDate(
       this.joinRepositoryCommits(await Promise.all(commitsPromise))
     );
+  },
+
+  translateConventionalCommits(
+    commits: Github.SimpleCommit[]
+  ): Github.SimpleCommit[] {
+    const hashmap = {
+      feat: 'Desenvolvimento de feature',
+      fix: 'Correção/manutenção de bug',
+      docs: 'Documentação',
+      style: 'Formatação de estilos',
+      refactor: 'Refatoração',
+      chore: 'Outras alterações',
+      test: 'Testes automatizados',
+      merge: 'Review de Pull Request',
+    };
+
+    return commits.map((commit) => ({
+      ...commit,
+      description: commit.description.replace(
+        /feat|fix|docs|style|refactor|chore|test|merge/i,
+        (key) => hashmap[key as keyof typeof hashmap]
+      ),
+    }));
+  },
+
+  parseLocation(commits: Github.SimpleCommit[]): Github.SimpleCommit[] {
+    return commits.map((commit) => ({
+      ...commit,
+      description: commit.description.replace(
+        /\(([\w\-]+)\):/gm,
+        (_, location) => ` em "${location}":`
+      ),
+    }));
+  },
+
+  async translateMessage(
+    commits: Github.SimpleCommit[]
+  ): Promise<Github.SimpleCommit[]> {
+    const promise = commits.map(async (commit) => {
+      const [head, message] = commit.description.split(':');
+      const { text } = await translate(message, { to: 'pt-br' });
+
+      return { ...commit, description: `${head}: ${text}` };
+    });
+
+    return Promise.all(promise);
+  },
+
+  async translateCommits(
+    commits: Github.SimpleCommit[]
+  ): Promise<Github.SimpleCommit[]> {
+    const conventionalTranslated = this.translateConventionalCommits(commits);
+    const locationParsed = this.parseLocation(conventionalTranslated);
+
+    return this.translateMessage(locationParsed);
   },
 
   async groupByDay(
@@ -191,69 +239,6 @@ export const githubCommit: GithubCommit.Service = {
 
       return { date, commits: joinedCommits };
     });
-  },
-
-  translateConventionalCommits(
-    commits: Github.SimpleCommit[]
-  ): Github.SimpleCommit[] {
-    const hashmap = {
-      feat: 'Desenvolvimento de feature',
-      fix: 'Correção/manutenção de bug',
-      docs: 'Documentação',
-      style: 'Formatação de estilos',
-      refactor: 'Refatoração',
-      chore: 'Outras alterações',
-      test: 'Testes automatizados',
-      merge: 'Review de Pull Request',
-    };
-
-    return commits.map((commit) => ({
-      ...commit,
-      description: commit.description.replace(
-        /feat|fix|docs|style|refactor|chore|test|merge/i,
-        (key) => hashmap[key as keyof typeof hashmap]
-      ),
-    }));
-  },
-
-  parseLocation(commits: Github.SimpleCommit[]): Github.SimpleCommit[] {
-    return commits.map((commit) => ({
-      ...commit,
-      description: commit.description.replace(
-        /\(([\w\-]+)\):/gm,
-        (_, location) => ` em "${location}":`
-      ),
-    }));
-  },
-
-  async translateMessage(
-    commits: Github.SimpleCommit[]
-  ): Promise<Github.SimpleCommit[]> {
-    const promise = commits.map(async (commit) => {
-      const [head, message] = commit.description.split(':');
-      const { text } = await translate(message, { to: 'pt-br' });
-
-      return { ...commit, description: `${head}: ${text}` };
-    });
-
-    return Promise.all(promise);
-  },
-
-  async translateCommits(
-    commits: Github.SimpleCommit[]
-  ): Promise<Github.SimpleCommit[]> {
-    const conventionalTranslated = this.translateConventionalCommits(commits);
-    const locationParsed = this.parseLocation(conventionalTranslated);
-
-    return this.translateMessage(locationParsed);
-  },
-
-  async simpleLoad(
-    options: GithubCommit.Input
-  ): Promise<Github.SimpleCommit[]> {
-    const commits = await this.load(options.when);
-
-    return options.translate ? await this.translateCommits(commits) : commits;
   },
 
   async groupedLoad(
