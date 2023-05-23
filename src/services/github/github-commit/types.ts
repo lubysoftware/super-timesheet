@@ -68,9 +68,7 @@ export namespace GithubCommit {
       project?: TimesheetProject.Row
     ): Github.SimpleCommit;
     removeMerge(commits: Github.SimpleCommit[]): Github.SimpleCommit[];
-    joinRepositoryCommits(
-      commits: Github.SimpleCommit[][]
-    ): Github.SimpleCommit[];
+    joinCommitLists(commits: Github.SimpleCommit[][]): Github.SimpleCommit[];
     sortCommitsByDate(commits: Github.SimpleCommit[]): Github.SimpleCommit[];
     load(when?: DateFilter): Promise<Github.SimpleCommit[]>;
     loadAppointments(

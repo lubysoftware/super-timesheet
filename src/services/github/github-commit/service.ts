@@ -36,14 +36,14 @@ export const githubCommit: GithubCommit.Service = {
     };
   },
 
-  joinRepositoryCommits(
-    commits: Github.SimpleCommit[][]
-  ): Github.SimpleCommit[] {
-    const items: Github.SimpleCommit[] = [];
+  joinCommitLists(commitLists: Github.SimpleCommit[][]): Github.SimpleCommit[] {
+    const commits: Github.SimpleCommit[] = [];
 
-    commits.forEach((list) => list.forEach((c) => items.push(c)));
+    commitLists.forEach((list) =>
+      list.forEach((commit) => commits.push(commit))
+    );
 
-    return items;
+    return commits;
   },
 
   sortCommitsByDate(commits: Github.SimpleCommit[]): Github.SimpleCommit[] {
@@ -98,7 +98,7 @@ export const githubCommit: GithubCommit.Service = {
     );
 
     return this.sortCommitsByDate(
-      this.joinRepositoryCommits(await Promise.all(commitsPromise))
+      this.joinCommitLists(await Promise.all(commitsPromise))
     );
   },
 
@@ -274,8 +274,8 @@ export const githubCommit: GithubCommit.Service = {
     const commits = await this.groupedLoad(options);
     const aux: TimesheetAppointment.Schema['appointments'] = [];
 
-    const promise = commits.map(async (item) => {
-      const promise = item.commits.map(async (commit) => {
+    commits.forEach((item) =>
+      item.commits.forEach((commit) => {
         const description = `${commit.items
           .map(
             (item) =>
@@ -306,14 +306,8 @@ export const githubCommit: GithubCommit.Service = {
           end: commit.endTime,
           description,
         });
-
-        return aux;
-      });
-
-      return await Promise.all(promise);
-    });
-
-    await Promise.all(promise);
+      })
+    );
 
     return aux;
   },
