@@ -16,7 +16,7 @@ export const gitCommitReadFormSchema = z
           const now = new Date(new Date().toISOString().split('T')[0]);
           const since = new Date(value);
 
-          return now > since;
+          return now >= since;
         },
         { message: `A data não pode ser maior que a atual` }
       ),
