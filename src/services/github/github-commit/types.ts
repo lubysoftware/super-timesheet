@@ -1,6 +1,7 @@
 import { gitCommitReadFormSchema } from '@/services/github/github-commit/schema';
 import { Github } from '@/services/github/types';
 import { TimesheetAppointment } from '@/services/timesheet/timesheet-appointment/types';
+import { TimesheetProject } from '@/services/timesheet/timesheet-project/types';
 
 export namespace GithubCommit {
   export interface DayTime {
@@ -24,6 +25,7 @@ export namespace GithubCommit {
     time: Github.SimpleCommit['date'];
     description: Github.Commit['commit']['message'];
     commit: Github.Commit['html_url'];
+    project?: TimesheetProject.Row;
   }
 
   export interface GithubCommitDayGroup {
@@ -38,6 +40,7 @@ export namespace GithubCommit {
 
   export interface GithubCommitTimeGroupItems {
     repo: Github.SimpleRepository['fullName'];
+    project?: TimesheetProject.Row;
     commits: GithubCommitOfDayTimeGroup[];
   }
 
@@ -59,7 +62,11 @@ export namespace GithubCommit {
 
   export interface Service {
     schema: typeof gitCommitReadFormSchema;
-    simplifyCommit(repo: string, _: Github.Commit): Github.SimpleCommit;
+    simplifyCommit(
+      repo: string,
+      _: Github.Commit,
+      project?: TimesheetProject.Row
+    ): Github.SimpleCommit;
     removeMerge(commits: Github.SimpleCommit[]): Github.SimpleCommit[];
     joinRepositoryCommits(
       commits: Github.SimpleCommit[][]

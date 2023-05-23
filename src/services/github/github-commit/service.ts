@@ -4,6 +4,7 @@ import { githubInfos } from '@/services/github/github-infos/service';
 import { githubRepository } from '@/services/github/github-repository/service';
 import { Github } from '@/services/github/types';
 import { TimesheetAppointment } from '@/services/timesheet/timesheet-appointment/types';
+import { TimesheetProject } from '@/services/timesheet/timesheet-project/types';
 import { getUser } from '@/store/user/store';
 import { translate } from '@vitalets/google-translate-api';
 
@@ -21,12 +22,17 @@ export const githubCommit: GithubCommit.Service = {
     );
   },
 
-  simplifyCommit(repo: string, _: Github.Commit): Github.SimpleCommit {
+  simplifyCommit(
+    repo: string,
+    _: Github.Commit,
+    project?: TimesheetProject.Row
+  ): Github.SimpleCommit {
     return {
       repo,
       date: formatISO(new Date(_.commit.committer?.date || '')),
       description: _.commit.message,
       commit: _.html_url,
+      project,
     };
   },
 
@@ -84,7 +90,9 @@ export const githubCommit: GithubCommit.Service = {
         );
 
         return this.removeMerge(
-          response.data.map((commit) => this.simplifyCommit(repo, commit))
+          response.data.map((commit) =>
+            this.simplifyCommit(repo, commit, repository.project)
+          )
         );
       }
     );
@@ -157,11 +165,8 @@ export const githubCommit: GithubCommit.Service = {
     commits.forEach((item) => {
       const day = item.date.split('T')[0];
 
-      if (grouped[day]) {
-        grouped[day].push(item);
-      } else {
-        grouped[day] = [item];
-      }
+      if (grouped[day]) grouped[day].push(item);
+      else grouped[day] = [item];
     });
 
     return Object.entries(grouped).map(
@@ -172,6 +177,7 @@ export const githubCommit: GithubCommit.Service = {
           time: c.date.split('T')[1].split('.')[0],
           description: c.description,
           commit: c.commit,
+          project: c.project,
         })),
       })
     );
@@ -205,6 +211,7 @@ export const githubCommit: GithubCommit.Service = {
           ) {
             commits[tIndex].items.push({
               repo: commit.repo,
+              project: commit.project,
               commits: [
                 {
                   description: commit.description,
@@ -219,21 +226,27 @@ export const githubCommit: GithubCommit.Service = {
       const joinedCommits = commits.map((c) => {
         const grouped: Record<
           GithubCommit.GithubCommitTimeGroupItems['repo'],
-          GithubCommit.GithubCommitTimeGroupItems['commits']
+          {
+            commits: GithubCommit.GithubCommitTimeGroupItems['commits'];
+            project: GithubCommit.GithubCommitTimeGroupItems['project'];
+          }
         > = {};
 
-        c.items.forEach(({ repo, commits }) =>
+        c.items.forEach(({ repo, commits, project }) =>
           grouped[repo]
-            ? (grouped[repo] = grouped[repo].concat(commits))
-            : (grouped[repo] = [...commits])
+            ? (grouped[repo].commits = grouped[repo].commits.concat(commits))
+            : (grouped[repo] = { commits, project })
         );
 
         return {
           ...c,
-          items: Object.entries(grouped).map(([repo, commits]) => ({
-            repo,
-            commits,
-          })),
+          items: Object.entries(grouped).map(
+            ([repo, { commits, project }]) => ({
+              repo,
+              commits,
+              project,
+            })
+          ),
         };
       });
 
@@ -258,17 +271,11 @@ export const githubCommit: GithubCommit.Service = {
   async loadAppointments(
     options: GithubCommit.Input
   ): Promise<TimesheetAppointment.Schema['appointments']> {
-    const repositoryProjects = await githubRepository.getAll();
     const commits = await this.groupedLoad(options);
     const aux: TimesheetAppointment.Schema['appointments'] = [];
 
     const promise = commits.map(async (item) => {
       const promise = item.commits.map(async (commit) => {
-        const repos = commit.items.map((i) =>
-          repositoryProjects.find((r) => r.fullName.split('/')[1] === i.repo)
-        );
-        const repo = repos[0]?.project;
-
         const description = `${commit.items
           .map(
             (item) =>
@@ -283,6 +290,8 @@ export const githubCommit: GithubCommit.Service = {
                 .join('\n')
           )
           .join('\n\n')}`;
+
+        const repo = commit.items[0].project;
 
         aux.push({
           client: repo

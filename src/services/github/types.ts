@@ -1,3 +1,4 @@
+import { TimesheetProject } from '@/services/timesheet/timesheet-project/types';
 import { Endpoints } from '@octokit/types';
 
 export namespace Github {
@@ -29,6 +30,7 @@ export namespace Github {
     date: string;
     description: Commit['commit']['message'];
     commit: Commit['html_url'];
+    project?: TimesheetProject.Row;
   }
 
   export interface Service {
