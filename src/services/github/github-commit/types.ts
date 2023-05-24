@@ -20,7 +20,7 @@ export namespace GithubCommit {
     when?: DateFilter;
   }
 
-  export interface GithubCommitOfDayGroup {
+  export interface DayGroupItem {
     repo: Github.SimpleRepository['fullName'];
     time: Github.SimpleCommit['date'];
     description: Github.Commit['commit']['message'];
@@ -28,36 +28,31 @@ export namespace GithubCommit {
     project?: TimesheetProject.Row;
   }
 
-  export interface GithubCommitDayGroup {
+  export interface DayGroup {
     date: Github.SimpleCommit['date'];
-    commits: GithubCommitOfDayGroup[];
+    commits: DayGroupItem[];
   }
 
-  export interface GithubCommitOfDayTimeGroup {
+  export interface DayTimeGroupItem {
     description: Github.Commit['commit']['message'];
     commit: Github.Commit['html_url'];
   }
 
-  export interface GithubCommitTimeGroupItems {
+  export interface TimeGroupItems {
     repo: Github.SimpleRepository['fullName'];
     project?: TimesheetProject.Row;
-    commits: GithubCommitOfDayTimeGroup[];
+    commits: DayTimeGroupItem[];
   }
 
-  export interface GithubCommitTimeGroup {
+  export interface TimeGroup {
     startTime: Github.SimpleCommit['date'];
     endTime: Github.SimpleCommit['date'];
-    items: GithubCommitTimeGroupItems[];
+    items: TimeGroupItems[];
   }
 
-  export interface GithubCommitDayTimeGroup {
+  export interface DayTimeGroup {
     date: Github.SimpleCommit['date'];
-    commits: GithubCommitTimeGroup[];
-  }
-
-  export interface AppointmentCommitBased {
-    date: Github.SimpleCommit['date'];
-    commits: GithubCommitTimeGroup[];
+    commits: TimeGroup[];
   }
 
   export interface Service {
@@ -74,12 +69,12 @@ export namespace GithubCommit {
     loadAppointments(
       options: Input
     ): Promise<TimesheetAppointment.Schema['appointments']>;
-    groupedLoad(options: Input): Promise<GithubCommitDayTimeGroup[]>;
-    groupByDay(commits: Github.SimpleCommit[]): Promise<GithubCommitDayGroup[]>;
+    groupedLoad(options: Input): Promise<DayTimeGroup[]>;
+    groupByDayAndProject(commits: Github.SimpleCommit[]): Promise<DayGroup[]>;
     groupByTime(
-      commits: GithubCommitDayGroup[],
+      commits: DayGroup[],
       dayTimes: DayTime[]
-    ): Promise<GithubCommitDayTimeGroup[]>;
+    ): Promise<DayTimeGroup[]>;
     translateConventionalCommits(
       commits: Github.SimpleCommit[]
     ): Github.SimpleCommit[];

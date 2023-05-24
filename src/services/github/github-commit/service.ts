@@ -157,21 +157,25 @@ export const githubCommit: GithubCommit.Service = {
     return this.translateMessage(locationParsed);
   },
 
-  async groupByDay(
+  async groupByDayAndProject(
     commits: Github.SimpleCommit[]
-  ): Promise<GithubCommit.GithubCommitDayGroup[]> {
-    const grouped: Record<string, Github.SimpleCommit[]> = {};
+  ): Promise<GithubCommit.DayGroup[]> {
+    const days: Record<string, Github.SimpleCommit[]> = {};
 
     commits.forEach((item) => {
       const day = item.date.split('T')[0];
+      const project = item.project?.projectName;
+      const client = item.project?.clientName;
 
-      if (grouped[day]) grouped[day].push(item);
-      else grouped[day] = [item];
+      const title = `${day}-${project}-${client}`;
+
+      if (days[title]) days[title].push(item);
+      else days[title] = [item];
     });
 
-    return Object.entries(grouped).map(
-      ([day, commit]): GithubCommit.GithubCommitDayGroup => ({
-        date: day,
+    return Object.entries(days).map(
+      ([, commit]): GithubCommit.DayGroup => ({
+        date: commit[0].date.split('T')[0],
         commits: commit.map((c) => ({
           repo: c.repo,
           time: c.date.split('T')[1].split('.')[0],
@@ -184,39 +188,36 @@ export const githubCommit: GithubCommit.Service = {
   },
 
   async groupByTime(
-    commits: GithubCommit.GithubCommitDayGroup[],
+    commits: GithubCommit.DayGroup[],
     dayTimes: GithubCommit.DayTime[]
-  ): Promise<GithubCommit.GithubCommitDayTimeGroup[]> {
-    const times: GithubCommit.GithubCommitTimeGroup[] = dayTimes.map(
-      (time) => ({
-        startTime: time.start,
-        endTime: time.end,
-        items: [] as GithubCommit.GithubCommitTimeGroupItems[],
-      })
-    );
-
+  ): Promise<GithubCommit.DayTimeGroup[]> {
     return commits.map((day) => {
       const date = day.date;
-      const commits: GithubCommit.GithubCommitTimeGroup[] = [...times];
+      const commits: GithubCommit.TimeGroup[] = dayTimes.map((time) => ({
+        startTime: time.start,
+        endTime: time.end,
+        items: [] as GithubCommit.TimeGroupItems[],
+      }));
 
       day.commits.forEach((commit) =>
-        times.forEach((t, tIndex) => {
+        commits.forEach((t, index) => {
           if (
+            // Se o horário for maior que o inicial e menor que o final
             (commit.time >= t.startTime && commit.time <= t.endTime) ||
-            (commit.time < t.startTime && tIndex === 0) ||
-            (commit.time > t.endTime && tIndex === times.length - 1) ||
-            (!!times[tIndex + 1] &&
+            // Ou se for o primeiro e o horário for menor que o inicial
+            (commit.time < t.startTime && index === 0) ||
+            // Ou se for o último e o horário for maior que o final
+            (commit.time > t.endTime && index === commits.length - 1) ||
+            // Ou se tiver outro item e o horário for entre final do atual e o inicial do próximo
+            (!!commits[index + 1] &&
               commit.time > t.endTime &&
-              commit.time < times[tIndex + 1].startTime)
+              commit.time < commits[index + 1].startTime)
           ) {
-            commits[tIndex].items.push({
+            commits[index].items.push({
               repo: commit.repo,
               project: commit.project,
               commits: [
-                {
-                  description: commit.description,
-                  commit: commit.commit,
-                },
+                { description: commit.description, commit: commit.commit },
               ],
             });
           }
@@ -225,10 +226,10 @@ export const githubCommit: GithubCommit.Service = {
 
       const joinedCommits = commits.map((c) => {
         const grouped: Record<
-          GithubCommit.GithubCommitTimeGroupItems['repo'],
+          GithubCommit.TimeGroupItems['repo'],
           {
-            commits: GithubCommit.GithubCommitTimeGroupItems['commits'];
-            project: GithubCommit.GithubCommitTimeGroupItems['project'];
+            commits: GithubCommit.TimeGroupItems['commits'];
+            project: GithubCommit.TimeGroupItems['project'];
           }
         > = {};
 
@@ -256,14 +257,14 @@ export const githubCommit: GithubCommit.Service = {
 
   async groupedLoad(
     options: GithubCommit.Input
-  ): Promise<GithubCommit.GithubCommitDayTimeGroup[]> {
+  ): Promise<GithubCommit.DayTimeGroup[]> {
     let commits = await this.load(options.when);
 
     if (options.translate) {
       commits = await this.translateCommits(commits);
     }
 
-    const byDay = await this.groupByDay(commits);
+    const byDay = await this.groupByDayAndProject(commits);
 
     return await this.groupByTime(byDay, options.dayTimes);
   },
@@ -291,7 +292,7 @@ export const githubCommit: GithubCommit.Service = {
           )
           .join('\n\n')}`;
 
-        const repo = commit.items[0].project;
+        const repo = commit.items[0]?.project;
 
         aux.push({
           client: repo
