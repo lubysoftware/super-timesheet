@@ -1,0 +1,121 @@
+name: publish
+
+on:
+  push:
+    branches:
+      - staging
+
+env:
+  URL_VAULT: "https://vault.luby.me"
+  OKS_PATH: "./artfacts"
+  ENVIRONMENT_NAME: "staging"
+  ENV_APP_PATH: "staging/data/super-timesheet"
+  SONAR_TOKEN_NAME: "TOKEN_SUPER_TIMESHEET"
+  #OCI
+  OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_PRIVATE_KEY_PEM }}
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Import Vault Variables
+        uses: hashicorp/vault-action@v2.3.1
+        id: secrets
+        with:
+          url: ${{ env.URL_VAULT }}
+          method: token
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            devops/data/pipeline-actions-oci OCID_COMPARTMENT_OKE;
+            devops/data/pipeline-actions-oci OCID_OKE_CLUSTER;
+            devops/data/pipeline-actions-oci OCID_TENANCY;
+            devops/data/pipeline-actions-oci OCID_USER;
+            devops/data/pipeline-actions-oci OCI_DOCKERHUB_TOKEN;
+            devops/data/pipeline-actions-oci OCI_DOCKERHUB_USERNAME;
+            devops/data/pipeline-actions-oci OCI_FINGERPRINT;
+            devops/data/pipeline-actions-oci OCI_PRIVATE_KEY_PEM;
+            devops/data/pipeline-actions-oci OCI_REGION;
+            devops/data/pipeline-actions-oci OCI_REGISTRY_ENDPOINT;
+            devops/data/pipeline-actions-oci OCI_TENANCY_NAMESPACE;
+            devops/data/pipeline-actions-oci SONAR_HOST | SONAR_HOST_URL;
+            devops/data/sonar-tokens ${{ env.SONAR_TOKEN_NAME }} | SONAR_TOKEN;
+            ${{ env.ENV_APP_PATH }} OCI_REGISTRY_NAME;
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Sonar Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ steps.secrets.outputs.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ steps.secrets.outputs.SONAR_HOST_URL }}
+
+      # - name: Sonar Quality Gate
+      #   uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ steps.secrets.outputs.SONAR_TOKEN }}
+
+      - name: Set OCI Variables
+        run: |
+          echo "Setting variables"
+          echo "OCI_CLI_USER=${{ steps.secrets.outputs.OCID_USER }}" >> $GITHUB_ENV
+          echo "OCI_CLI_TENANCY=${{ steps.secrets.outputs.OCID_TENANCY }}" >> $GITHUB_ENV
+          echo "OCI_CLI_FINGERPRINT=${{ steps.secrets.outputs.OCI_FINGERPRINT }}" >> $GITHUB_ENV
+          echo "OCI_CLI_REGION=${{ steps.secrets.outputs.OCI_REGION }}" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Configure CLI and Kubectl
+        uses: oracle-actions/configure-kubectl-oke@v1.1
+        id: configure-kubectl-oke-action
+        with:
+          cluster: ${{ steps.secrets.outputs.OCID_OKE_CLUSTER }}
+
+      - name: Get Registry URI
+        run: |
+          TAG=$(oci artifacts container image list --compartment-id ${{ steps.secrets.outputs.OCID_COMPARTMENT_OKE }} --repository-name ${{ steps.secrets.outputs.OCI_REGISTRY_NAME }} | jq -r '.data.items' | jq '.[]' | jq 'select(.version != null).version|tonumber' | sort -nr | head -n1)
+          if [ -z "$TAG" ]; then TAG_IMAGE="1.0"; else TAG_IMAGE=`echo $TAG + 1 | bc`; fi
+          echo "TAG: " $TAG
+          echo "TAG_IMAGE: " $TAG_IMAGE
+          echo "REGISTRY_URI=${{ steps.secrets.outputs.OCI_REGISTRY_ENDPOINT }}/${{ steps.secrets.outputs.OCI_TENANCY_NAMESPACE }}/${{ steps.secrets.outputs.OCI_REGISTRY_NAME }}:$TAG_IMAGE" >> $GITHUB_ENV
+          echo "Registry URI" ${{ env.REGISTRY_URI }}
+
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ steps.secrets.outputs.OCI_REGISTRY_ENDPOINT }}
+          username: ${{ steps.secrets.outputs.OCI_DOCKERHUB_USERNAME }}
+          password: ${{ steps.secrets.outputs.OCI_DOCKERHUB_TOKEN }}
+
+      - name: "Create Local Files"
+        id: env
+        run: |
+          cp ${{ env.OKS_PATH }}/${{ env.ENVIRONMENT_NAME }}/Dockerfile .
+          chmod a+x ${{ env.OKS_PATH }}/script_env.sh
+          ${{ env.OKS_PATH }}/script_env.sh ${{ secrets.VAULT_TOKEN }} ${{ env.URL_VAULT }} ${{ env.ENV_APP_PATH }}
+        shell: bash
+
+      - name: "Build Docker Image"
+        run: |
+          docker build -t docker-image-local .
+
+      - name: "Push Docker Image to Registry"
+        run: |
+          echo ${{ env.REGISTRY_URI }}
+          docker tag docker-image-local:latest ${{ env.REGISTRY_URI }}
+          docker push ${{ env.REGISTRY_URI }}
+
+      - name: Set New Image on Deployment File
+        run: |
+          sed -i -e "s#IMAGE_VERSION#${{ env.REGISTRY_URI }}#" ${{ env.OKS_PATH }}/${{ env.ENVIRONMENT_NAME }}/0_deployment.yaml
+          cat ${{ env.OKS_PATH }}/${{ env.ENVIRONMENT_NAME }}/0_deployment.yaml
+
+      - name: Kubernetes Deploy
+        run: |
+          kubectl apply -f ${{ env.OKS_PATH }}/${{ env.ENVIRONMENT_NAME }}/0_deployment.yaml
+          kubectl apply -f ${{ env.OKS_PATH }}/${{ env.ENVIRONMENT_NAME }}/1_service.yaml
+          kubectl apply -f ${{ env.OKS_PATH }}/${{ env.ENVIRONMENT_NAME }}/2_hpa.yaml
