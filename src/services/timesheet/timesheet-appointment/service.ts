@@ -9,6 +9,29 @@ import { routes } from '@/utils/routes';
 import axios, { AxiosRequestConfig } from 'axios';
 import { Cookie } from 'tough-cookie';
 
+export const brDateToISO = (date: string): string => {
+  const [day, month, year] = date.split('/');
+
+  return `${year}-${month}-${day}T00:00:00.000Z`;
+};
+
+export const statusAdapter = (
+  previous: string
+): TimesheetAppointment.Status => {
+  switch (previous) {
+    case 'Aprovada':
+      return TimesheetAppointment.Status.Approved;
+    case 'Pré-Aprovada':
+      return TimesheetAppointment.Status.PreApproved;
+    case 'Em análise':
+      return TimesheetAppointment.Status.Review;
+    case 'Reprovada':
+      return TimesheetAppointment.Status.Unapproved;
+    default:
+      return TimesheetAppointment.Status.Unknown;
+  }
+};
+
 export const timesheetAppointment: TimesheetAppointment.Service = {
   entity: 'TimesheetAppointment',
   configRequest(cookies: Cookie[]): AxiosRequestConfig {
@@ -92,6 +115,102 @@ export const timesheetAppointment: TimesheetAppointment.Service = {
       return data;
     } catch (e) {
       toast.error('Houve um problema ao enviar os apontamentos!');
+
+      return [];
+    }
+  },
+  async load(cookies: Cookie[]): Promise<TimesheetAppointment.Row[]> {
+    let appointments: TimesheetAppointment.Row[] = [];
+
+    try {
+      const response = await axios.get(
+        '/Worksheet/Read',
+        this.configRequest(cookies)
+      );
+
+      const html: string = response.data;
+
+      const regex = /(<tbody>)([\w\W]+?)(<\/tbody>)/gm;
+
+      const search: string = (html.match(regex) || [''])[0];
+
+      const cleanedSearch = search.split(/\r\n/gm).join('');
+
+      const rows = cleanedSearch.match(/tr>([\S\s]+?)<\/tr/g);
+
+      if (!rows) {
+        if (html.match('<div class="login-content">'))
+          console.error(`[${401}]: Cookies are invalid!`);
+        else console.error(`[${500}]: Options not found!`);
+
+        return [];
+      }
+
+      const appointmentsPromise = rows.map(
+        async (row): Promise<TimesheetAppointment.Row> => {
+          const cols = row.split(/<\/td>([\S\s]+?)<td>/gm);
+
+          cols[0] = cols[0].replace(/tr>([\S\s]+?)<td>/gm, '');
+
+          cols[16] = (cols[16].match(/fff">([\S\s]+?)<\/span/gm) || [''])[0];
+          cols[16] = cols[16].replace(/fff">([\S\s]+?)<\/span/gm, '$1');
+
+          cols[18] = (cols[18].match(/id="([\S\s]+?)"/gm) || [''])[0];
+          cols[18] = cols[18].replace(/id="([\S\s]+?)"/gm, '$1');
+
+          const partial = { code: cols[18], status: statusAdapter(cols[16]) };
+
+          const {
+            data: {
+              IdProject,
+              IdCategory,
+              InformedDate,
+              StartTime,
+              EndTime,
+              NotMonetize,
+              Description,
+            },
+          } = await axios.get<TimesheetAppointment.Full>(
+            `/Worksheet/Update?id=${partial.code}`,
+            this.configRequest(cookies)
+          );
+
+          return {
+            client: '?',
+            project: String(IdProject),
+            category: String(IdCategory),
+            date: brDateToISO(InformedDate),
+            startTime: StartTime,
+            endTime: EndTime,
+            description: Description,
+            notMonetize: NotMonetize,
+          };
+        }
+      );
+
+      appointments = await Promise.all(appointmentsPromise);
+    } catch (e) {
+      console.error('Error on "Get Appointments" process!', e);
+    }
+
+    if (appointments.length <= 0) console.error('Appointments not loaded');
+
+    return appointments;
+  },
+  async search(): Promise<TimesheetAppointment.Row[]> {
+    try {
+      const response = await timesheetInfos.get();
+
+      if (!response || response.length === 0) return [];
+
+      const { data } = await axios.post<TimesheetAppointment.Row[]>(
+        routes.api.timesheet.loadAppointments(),
+        response[0]
+      );
+
+      return data;
+    } catch (e) {
+      toast.error('Houve um problema ao carregar os apontamentos!');
 
       return [];
     }

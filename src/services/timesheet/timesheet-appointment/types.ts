@@ -22,6 +22,15 @@ export namespace TimesheetAppointment {
     errorMessage?: string;
   }
 
+  export enum Status {
+    PreApproved = 'PreApproved',
+    Approved = 'Approved',
+    Review = 'Review',
+    Unapproved = 'Unapproved',
+    Draft = 'Draft',
+    Unknown = 'Unknown',
+  }
+
   export interface Row {
     client: string;
     project: string;
@@ -42,6 +51,8 @@ export namespace TimesheetAppointment {
       data: Row
     ): Omit<TimesheetAppointment, '__RequestVerificationToken'>;
     send(input: Input): Promise<Output[]>;
+    load(cookies: Cookie[]): Promise<Row[]>;
+    search(): Promise<Row[]>;
     schema: InferType<typeof appointmentSchema>;
   }
 
@@ -72,5 +83,63 @@ export namespace TimesheetAppointment {
     NotMonetize: string;
     CommitRepository: string;
     Description: string;
+  }
+
+  export interface Full {
+    Worksheet: null;
+    Require: null;
+    Evaluate: null;
+    TotalRows: number;
+    PageSize: number;
+    Table: null;
+    Id: number;
+    IdRequire: null;
+    IdCustomer: number;
+    CustomerName: null;
+    IdProject: number;
+    ProjectName: null;
+    StartDate: null;
+    EndDate: null;
+    IdCell: number;
+    CellName: null;
+    IdCategory: number;
+    IdManager: number;
+    IdDeveloper: number;
+    IsMaster: boolean;
+    IdAncestor: number;
+    DeveloperName: null;
+    HourValue: null;
+    ExtraValue: null;
+    CategoryName: null;
+    InformedDate: string;
+    Created: null;
+    StartTime: string;
+    EndTime: string;
+    TotalTime: null;
+    NotMonetize: boolean;
+    Description: string;
+    CommitRepository: string | null;
+    IsDeleted: boolean;
+    TotalTimeInProject: null;
+    ConsumedTimeInProject: null;
+    IdEvaluate: null;
+    IsApprove: null;
+    IsReprove: null;
+    IsReview: null;
+    IsWait: null;
+    IsPreApproved: null;
+    TimePreApproved: null;
+    UserPreApproved: null;
+    IsPaid: boolean;
+    ConsumedTimeInProjectExceded: boolean;
+    TimeInWorksheetExceded: number;
+    IsEvaluate: boolean;
+    TypeReport: null;
+    SumTotalTime: null;
+    TotaltimeInMinutes: number;
+    IdCustomerPreSelected: null;
+    IdProjectPreSelected: null;
+    IdDeveloperPreSelected: null;
+    IsEvaluatePreSelected: boolean;
   }
 }
