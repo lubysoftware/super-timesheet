@@ -6,6 +6,7 @@ export enum Routes {
   Configurations = `/configurations`,
   TimesheetAppointmentCreateWithGithub = `/timesheet/appointment/create/with-github`,
   TimesheetAppointmentCreate = `/timesheet/appointment/create`,
+  TimesheetAppointmentRead = `/timesheet/appointment/read`,
   SystemOperation = `/system/operation`,
 }
 
@@ -16,6 +17,7 @@ export const routes = {
   createAppointmentWithGithub: (): Routes =>
     Routes.TimesheetAppointmentCreateWithGithub,
   createAppointment: (): Routes => Routes.TimesheetAppointmentCreate,
+  readAppointments: (): Routes => Routes.TimesheetAppointmentRead,
   about: (): Routes => Routes.SystemOperation,
 
   api: {
