@@ -91,6 +91,8 @@ const redirectLoad = (goTo: Routes): Load => {
       return Load.RedirectToGithubCommitsLoad;
     case Routes.TimesheetAppointmentCreate:
       return Load.RedirectToTimesheetAppointmentCreate;
+    case Routes.TimesheetAppointmentRead:
+      return Load.RedirectToTimesheetAppointmentRead;
     case Routes.SystemOperation:
       return Load.RedirectToSystemOperation;
   }
@@ -111,7 +113,11 @@ const items: Bar.Group[] = [
         name: 'Incluir com Github',
         route: Routes.TimesheetAppointmentCreateWithGithub,
       },
-      { Icon: ViewListIcon, name: 'Visualizar' },
+      {
+        Icon: ViewListIcon,
+        name: 'Visualizar',
+        route: Routes.TimesheetAppointmentRead,
+      },
     ],
   },
   {
