@@ -6,7 +6,6 @@ import Head from 'next/head';
 
 import Layout from '@/components/layout';
 import StyleWrapper from '@/components/style-wrapper';
-import { Analytics } from '@vercel/analytics/react';
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -25,7 +24,6 @@ const App: NextPage<AppProps> = ({ Component, pageProps }) => (
         <ToastContainer />
       </Layout>
     </StyleWrapper>
-    <Analytics />
   </>
 );
 

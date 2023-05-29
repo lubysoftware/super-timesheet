@@ -9,6 +9,7 @@ export enum Load {
   RedirectToConfigurations = 'redirect-to-configurations',
   RedirectToGithubCommitsLoad = 'redirect-to-github-commits-load',
   RedirectToTimesheetAppointmentCreate = 'redirect-to-timesheet-appointment-create',
+  RedirectToTimesheetAppointmentRead = 'redirect-to-timesheet-appointment-read',
   RedirectToSystemOperation = 'redirect-to-system-operation',
 }
 

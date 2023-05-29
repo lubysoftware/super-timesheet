@@ -73,6 +73,6 @@ export const timesheetInfos: TimesheetInfos.Service = {
       .string()
       .nonempty('O e-mail é obrigatório')
       .email('Formato de e-mail inválido'),
-    password: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
+    password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
   }),
 };
