@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 import { NextPage } from 'next';
 
@@ -40,7 +41,7 @@ const ReadAppointments: NextPage = () => {
 
       setAppointments(res);
     } catch (e) {
-      console.error(e);
+      toast.error(`${e}`);
     } finally {
       setLoading(false);
     }
