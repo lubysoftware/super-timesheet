@@ -28,7 +28,7 @@ export const github: Github.Service = {
 
     const infos = await githubInfos.get();
 
-    if (!infos) return [];
+    if (!infos || infos.length === 0) return [];
 
     const octokit = new Octokit({ auth: infos[0].token });
 
