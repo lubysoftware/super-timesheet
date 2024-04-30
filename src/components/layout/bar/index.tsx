@@ -1,6 +1,5 @@
-import { Box } from '@mui/material';
-
 import styled from '@emotion/styled';
+import { Box } from '@mui/material';
 
 const Bar = styled(Box)`
   display: flex;

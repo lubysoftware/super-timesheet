@@ -2,9 +2,8 @@ import { FC } from 'react';
 
 import Link from 'next/link';
 
-import { Grid } from '@mui/material';
-
 import styled from '@emotion/styled';
+import { Grid } from '@mui/material';
 
 import ThemeModeSwitcher from '@/components/theme-mode-switcher';
 import UserMenu from '@/components/user-menu';

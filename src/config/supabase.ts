@@ -1,5 +1,6 @@
-import { Database } from '@/config/supabase.types';
 import { createClient } from '@supabase/supabase-js';
+
+import { Database } from '@/config/supabase.types';
 
 export const supabase = createClient<Database>(
   `${process.env.NEXT_PUBLIC_SUPABASE_URL}`,

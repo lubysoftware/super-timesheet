@@ -1,5 +1,6 @@
-import { TimesheetProject } from '@/services/timesheet/timesheet-project/types';
 import { Endpoints } from '@octokit/types';
+
+import { TimesheetProject } from '@/services/timesheet/timesheet-project/types';
 
 export namespace Github {
   export type Repositories = Endpoints['GET /user/repos']['response']['data'];

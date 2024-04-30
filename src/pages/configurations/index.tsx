@@ -17,13 +17,13 @@ import { RouteTypes } from '@/utils/routes';
 
 const ConfigurationsPage: NextPage = () => {
   const { user } = useUserStore();
-  const pass = useAuthVerify(RouteTypes.Private);
+  // const pass = useAuthVerify(RouteTypes.Private);
 
   const { disableLoad } = useUiStore();
 
   useEffect(() => disableLoad(Load.RedirectToConfigurations), [disableLoad]);
 
-  if (!pass || !user) return <Loading />;
+  // if (!pass || !user) return <Loading />;
 
   return (
     <Grid container spacing={4}>

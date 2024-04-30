@@ -2,6 +2,7 @@ import { FC } from 'react';
 
 import { useRouter } from 'next/router';
 
+import styled from '@emotion/styled';
 import {
   Dashboard as DashboardIcon,
   GitHub as GithubIcon,
@@ -20,8 +21,6 @@ import {
   SvgIconTypeMap,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/types';
-
-import styled from '@emotion/styled';
 
 import Bar from '@/components/layout/bar';
 import useUiStore from '@/store/ui/store';

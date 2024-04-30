@@ -1,3 +1,5 @@
+import { translate } from '@vitalets/google-translate-api';
+
 import { gitCommitReadFormSchema } from '@/services/github/github-commit/schema';
 import { GithubCommit } from '@/services/github/github-commit/types';
 import { githubInfos } from '@/services/github/github-infos/service';
@@ -6,7 +8,6 @@ import { Github } from '@/services/github/types';
 import { TimesheetAppointment } from '@/services/timesheet/timesheet-appointment/types';
 import { TimesheetProject } from '@/services/timesheet/timesheet-project/types';
 import { getUser } from '@/store/user/store';
-import { translate } from '@vitalets/google-translate-api';
 
 import { formatISO } from 'date-fns';
 import { Octokit } from 'octokit';

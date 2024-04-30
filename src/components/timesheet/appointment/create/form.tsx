@@ -132,12 +132,12 @@ export const AppointmentForm: FC<AppointmentFormProps> = ({
 
   const openDialog = (): void => setDialogOpen(true);
 
+  const closeDialog = (): void => setDialogOpen(false);
+
   const handleRemove = (): void => {
     remove(index);
     closeDialog();
   };
-
-  const closeDialog = (): void => setDialogOpen(false);
 
   return (
     <Grid item xs={12} key={field.id}>

@@ -1,6 +1,5 @@
-import { darken } from '@mui/system';
-
 import styled from '@emotion/styled';
+import { darken } from '@mui/system';
 
 const GlobalStyles = styled.div`
   * {

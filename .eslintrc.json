@@ -16,13 +16,17 @@
     "prettier",
     "eslint-plugin-import-helpers",
     "@typescript-eslint/eslint-plugin",
-    "react-hooks"
+    "react-hooks",
+    "jsx-a11y"
   ],
   "rules": {
     "@typescript-eslint/interface-name-prefix": "off",
     "prettier/prettier": [
       "error",
       {
+        "tabWidth": 2,
+        "arrowParens": "always",
+        "endOfLine": "lf",
         "singleQuote": true,
         "trailingComma": "es5"
       }
@@ -105,10 +109,8 @@
         "groups": [
           "/^react/",
           "/^next/",
-          "/@apollo/",
-          "/@mui/",
-          "/@emotion/",
-          "/@/",
+          "/^@[^/].*/",
+          "/^@\\/.*/",
           "module",
           [
             "parent",
@@ -124,6 +126,19 @@
     ],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "import/prefer-default-export": "off"
+    "import/prefer-default-export": "off",
+    "no-use-before-define": "error",
+    "jsx-a11y/alt-text": [
+      "warn",
+      {
+        "elements": ["img"],
+        "img": ["Image"]
+      }
+    ],
+    "jsx-a11y/aria-props": "warn",
+    "jsx-a11y/aria-proptypes": "warn",
+    "jsx-a11y/aria-unsupported-elements": "warn",
+    "jsx-a11y/role-has-required-aria-props": "warn",
+    "jsx-a11y/role-supports-aria-props": "warn"
   }
 }

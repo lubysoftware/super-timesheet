@@ -2,6 +2,7 @@ import { FC, useEffect } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Remove as RemoveIcon } from '@mui/icons-material';
 import { Button, Grid, IconButton, Paper, Typography } from '@mui/material';
 
@@ -9,7 +10,6 @@ import { Form } from '@/components/form';
 import { githubCommit } from '@/services/github/github-commit/service';
 import { GithubCommit } from '@/services/github/github-commit/types';
 import useTimesheetStore from '@/store/timesheet/store';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import { z } from 'zod';
 

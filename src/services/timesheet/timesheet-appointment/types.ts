@@ -6,6 +6,18 @@ import { InferType } from 'prop-types';
 import { Cookie } from 'tough-cookie';
 
 export namespace TimesheetAppointment {
+  export interface Row {
+    client: string;
+    project: string;
+    category: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    notMonetize?: boolean;
+    commitLink?: string;
+    description: string;
+  }
+
   export interface Input {
     appointments: Row[];
   }
@@ -29,31 +41,6 @@ export namespace TimesheetAppointment {
     Unapproved = 'Unapproved',
     Draft = 'Draft',
     Unknown = 'Unknown',
-  }
-
-  export interface Row {
-    client: string;
-    project: string;
-    category: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    notMonetize?: boolean;
-    commitLink?: string;
-    description: string;
-  }
-
-  export interface Service {
-    entity: 'TimesheetAppointment';
-    configRequest(cookies: Cookie[]): AxiosRequestConfig;
-    makeBody(WebKitFormBoundary: string, data: TimesheetAppointment): string;
-    appointmentParse(
-      data: Row
-    ): Omit<TimesheetAppointment, '__RequestVerificationToken'>;
-    send(input: Input): Promise<Output[]>;
-    load(cookies: Cookie[]): Promise<Row[]>;
-    search(): Promise<Row[]>;
-    schema: InferType<typeof appointmentSchema>;
   }
 
   export interface Schema {
@@ -83,6 +70,19 @@ export namespace TimesheetAppointment {
     NotMonetize: string;
     CommitRepository: string;
     Description: string;
+  }
+
+  export interface Service {
+    entity: 'TimesheetAppointment';
+    configRequest(cookies: Cookie[]): AxiosRequestConfig;
+    makeBody(WebKitFormBoundary: string, data: TimesheetAppointment): string;
+    appointmentParse(
+      data: Row
+    ): Omit<TimesheetAppointment, '__RequestVerificationToken'>;
+    send(input: Input): Promise<Output[]>;
+    load(cookies: Cookie[]): Promise<Row[]>;
+    search(): Promise<Row[]>;
+    schema: InferType<typeof appointmentSchema>;
   }
 
   export interface Full {

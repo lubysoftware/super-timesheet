@@ -65,7 +65,6 @@ const ReadAppointments: NextPage = () => {
       </Grid>
       <Grid item xs={10}>
         <TextField
-          disabled
           type="month"
           size="small"
           value={format(new Date(), 'yyyy-MM')}

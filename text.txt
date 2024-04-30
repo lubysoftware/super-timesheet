@@ -1,0 +1,166 @@
+DO SG TE QA QI SX SA
+      01 02 03 04 05
+06 07 08 09 10 11 12
+13 14 15 16 17 18 19
+20 21 22 23 24 25 26
+27 28 29 30 31
+
+SG TE QA QI SX
+   01 02 03 04
+07 08 09 10 11
+14 15 16 17 18
+21 22 23 24 25
+28 29 30 31
+
+1
+Em "IS-PORTAL-BACKEND":
+- Configurando o ESLINT no projeto | (https://github.com/lubysoftware/IS-PORTAL-BACKEND/commit/4d14f08e0cf43ff94feb954b98017ea8627ac050);
+- Refatorando código do projeto para atender as regras de lint | (https://github.com/lubysoftware/IS-PORTAL-BACKEND/commit/6317f27675e870295aeb38ee87706b7dd39f3a0c);
+- Configurando outro lint para a documentação (https://github.com/lubysoftware/IS-PORTAL-BACKEND/commit/c2f3a23afcfc49e8dc58850088c3584235f43319).
+
+Em "IS-PORTAL-FRONT":
+- Criando regras de lint para documentação de código para o backend (jsdocs);
+- Criando exemplo de botão com scss
+- Criando exemplo de input de texto com scss
+- Criando exemplo de esquema de validação com zod
+
+2
+Em "IS-PORTAL-FRONT":
+- Verificando integração do React Rook Forms com o Next 13;
+- Vendo alteração do scss modules para o styled jsx (ou outro gerenciador);
+- Ajudando o pessoal do back com a configuração do ESlint;
+- Ajudando o pessoal do back com a migração para o Yarn Berry;
+
+3
+Em "IS-PORTAL-FRONT":
+- Refatorando exemplos para usarem Tailwind ao invés de scss
+- Criando configuração de exemplo do Shadcn
+
+4
+Em "IS-PORTAL-FRONT":
+- Criando exemplos de páginas/formulário de SignIn e SignUp, além de um middleware de autenticação.
+- Adicionando ao exemplo com Tailwind configuração de tema
+- Criando exemplo de testes de interação com o Storybook
+
+7
+Em "IS-PORTAL-FRONT":
+- Criando exemplo de configuração do Cypress
+
+8
+Em "IS-PORTAL-FRONT":
+- Removendo o SASS e suas configurações, colocando no lugar o Tailwind e configurando o mesmo | (https://github.com/lubysoftware/IS-PORTAL-FRONT/commit/65a39e25b552aa3bbf047db70cd675d13bdfbf3e);
+- Configurando o Shadcn e adicionando um componente de exemplo | (https://github.com/lubysoftware/IS-PORTAL-FRONT/commit/cd57cfc172bdc8353b765d06d0d8b4041520ea65);
+- Configurando tipagens | (https://github.com/lubysoftware/IS-PORTAL-FRONT/commit/ec6b2cc899b108f3dbd620477befbe1f7b8462ee).
+
+- Adicionando exemplo de teste de sign-in com o Cypress
+- Adicionando exemplo de teste de redirecionamento com o Cypress
+- Adicionando exemplo de criação de variantes de um componente com o tailwind-variants
+
+- Participando da discussão de proteção de rotas e middleware, uso do tailwind e formas diferentes de criar os components, criando a POC de testes com Cypress, e melhorando a implementação de variants com o tailwind
+
+9
+Em "IS-PORTAL-FRONT":
+- Revisando código e ajudando na criação do componente de texto Feat/text component | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/1
+
+
+10
+Em "IS-PORTAL-FRONT":
+- Revisando código e ajudando na criação do componente de texto Feat/text component | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/1
+- Configurando e aprimorando o componente de Texto, Tailwind e Tailwind Merge;
+- Ajudei um pouquinho o Lucas com a configuração do Cypress; | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/3
+- Reconfigurando tema do Tailwind para adotar as cores corretas | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/4
+- Criando página de Login do Estudando, Professor e Visitante | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/11
+- Configurando Fonte no Tailwind, renomeando tamanho de fontes e criando uma configuração para o tailwind merge (https://github.com/lubysoftware/IS-PORTAL-FRONT/commit/c47cc62e7f87cecfeef6b9aa4330de06a90d79ef);
+- Refatorando o componente de text | (https://github.com/lubysoftware/IS-PORTAL-FRONT/commit/311bfb882ed6919827da6b501678bfa0d4c6a270);
+
+
+11
+Em "IS-PORTAL-FRONT":
+- Revisando código de configuração do Cypress | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/3
+- Revisando código da criação do componente de Card da tela de login | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/5
+- Reconfigurando tema do Tailwind para adotar as cores corretas | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/4
+- Terminei o componente de Text;
+- Montando a página de sign-in;
+- Criando página de Login do Estudando, Professor e Visitante | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/11
+
+12
+Em "IS-PORTAL-FRONT":
+- Criando página de Login do Estudando, Professor e Visitante | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/11
+
+14
+Em "IS-PORTAL-FRONT":
+- Revisando código da criação do componente de Card da tela de login | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/5
+- Revisando código da criação do componente de Checkbox | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/6
+- Criando página de Login do Estudando, Professor e Visitante | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/11
+- Refatorando componente de Card do Login | (https://github.com/lubysoftware/IS-PORTAL-FRONT/commit/78d9e2f84b35c13804476218a99486a6fc578740);
+- Refatorando componente de Button | (https://github.com/lubysoftware/IS-PORTAL-FRONT/commit/3f7c87903a6eadb992b8b3f740600101962fd4df);
+
+15
+Em "IS-PORTAL-FRONT":
+- Trabalhando na página de Login do Estudando, Professor e Visitante | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/11
+
+16
+Em "IS-PORTAL-FRONT":
+- Revisando código da criação do componente de Input | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/13
+
+17
+Em "IS-PORTAL-FRONT":
+- Revisando código da criação do componente de Checkbox | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/6
+
+18
+Em "IS-PORTAL-FRONT":
+- Revisando código da criação do componente de Input | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/13
+- Revisando código de refatoração do login | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/16
+
+21
+Em "IS-PORTAL-FRONT":
+- Revisando código da criação do componente de Checkbox | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/6
+
+22
+Em "IS-PORTAL-FRONT":
+Revisando código e ajudando na criação do componente de Modal | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/18
+Revisando código e ajudando na criação da página de Recuperação de Senha | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/19
+Fiz o protótipo no figma da tela de recuperar senha;
+Adicionando regras de lint de react para melhorar escrita dos componentes;
+Adicionando regras de lint de lógica para evitar códigos confusos;
+
+23
+Em "IS-PORTAL-FRONT":
+Revisando código da criação do componente de Checkbox | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/6
+Revisando código e ajudando na criação do componente de Modal | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/18
+Revisando código e ajudando na criação da página de Recuperação de Senha | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/19
+Revisando código de refatoração de lang para locale | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/21
+Revisando código da criação da peça de tradução | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/22
+Revisando testes na tela de login | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/20
+
+24
+Em "IS-PORTAL-FRONT":
+Revisando código e ajudando na criação da página de Recuperação de Senha | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/19
+
+25
+Em "IS-PORTAL-FRONT":
+Adicionando Loading ao componente de Button | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/27
+Revisando código e ajudando na refatoração do componente de Input | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/28
+Criando exemplo de um componente de formulário.
+
+28
+Em "IS-PORTAL-FRONT":
+Revisando código da criação da peça de tradução | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/22
+Revisando testes de recuperação de senha | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/26
+Revisando código e ajudando na refatoração do componente de Input | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/28
+Refatorando da peça de tradução | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/29
+
+29
+Em "IS-PORTAL-FRONT":
+Refatorando da peça de tradução | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/29
+
+30
+Em "IS-PORTAL-FRONT":
+Refatorando da peça de tradução | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/29
+Revisando nova configuração do Cypress | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/32
+
+31
+Em "IS-PORTAL-FRONT":
+Revisando testes de recuperação de senha | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/26
+Revisando testes na tela de login | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/20
+Revisando refatoração no componente de Footer | https://github.com/lubysoftware/IS-PORTAL-FRONT/pull/31

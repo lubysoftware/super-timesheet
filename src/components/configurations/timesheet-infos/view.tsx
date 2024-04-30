@@ -2,13 +2,13 @@ import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Sync as SyncIcon } from '@mui/icons-material';
 import { Grid, IconButton, Skeleton, Typography } from '@mui/material';
 
 import { Form } from '@/components/form';
 import { timesheetInfos } from '@/services/timesheet/timesheet-infos/service';
 import { TimesheetInfos } from '@/services/timesheet/timesheet-infos/types';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 export const SetTimesheetInfosView: FC = () => {
   const [loading, setLoading] = useState<number>(0);
